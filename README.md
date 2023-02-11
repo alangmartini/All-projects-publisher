@@ -13,9 +13,14 @@
 
   <p align="center">
     BR:
+    <br />
       Lê quais projetos estão disponíveis no GitHub da sua turma
       e te permite selecionar quais você gostaria de publicar no seu Github pessoal.
-      Utiliza o já existente (Trybe Publisher)[https://github.com/tryber/student-repo-publisher] disponível para alunos da Trybe.
+      Utiliza o já existente Trybe Publisher disponível para alunos da Trybe.
+    <br />
+    ENG:
+    <br />
+        Project made for students at Trybe to easily publish project made while doing the course.
     <br />
     <br />
     <a href="https://github.com/alangmartini/All-projects-publisher">View Demo</a>
@@ -46,11 +51,8 @@
       </ul>
     </li>
     <li><a href="#usage">Usage</a></li>
-    <li><a href="#roadmap">Roadmap</a></li>
-    <li><a href="#contributing">Contributing</a></li>
     <li><a href="#license">License</a></li>
     <li><a href="#contact">Contact</a></li>
-    <li><a href="#acknowledgments">Acknowledgments</a></li>
   </ol>
 </details>
 
@@ -58,14 +60,16 @@
 
 <!-- ABOUT THE PROJECT -->
 ## About The Project
-
-[![Product Name Screen Shot][product-screenshot]](https://example.com)
-
-  Automatic Trybe Project Publisher, 
-  `Lê quais projetos estão disponíveis no GitHub da sua turma
-  e te permite selecionar quais você gostaria de publicar no seu Github pessoal.
-  Utiliza o já existente (Trybe Publisher)[https://github.com/tryber/student-repo-publisher] disponível para alunos da Trybe.`
-
+<h3 align="center">Automatic Trybe Project Publisher</h3>
+    <br />
+<div align="center">
+    <h5 align="left">BR:</h5>
+      Lê quais projetos estão disponíveis no GitHub da sua turma
+      e te permite selecionar quais você gostaria de publicar no seu Github pessoal.
+      Utiliza o já existente Trybe Publisher disponível para alunos da Trybe.
+    <h5 align="left">ENG:</h5>
+        Project made for students at Trybe to easily publish project made while doing the course.
+</div>
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
 
@@ -73,17 +77,8 @@
 ### Built With
 
 * [![Next][Next.js]][Next-url]
-* [![React][React.js]][React-url]
-* [![Vue][Vue.js]][Vue-url]
-* [![Angular][Angular.io]][Angular-url]
-* [![Svelte][Svelte.dev]][Svelte-url]
-* [![Laravel][Laravel.com]][Laravel-url]
-* [![Bootstrap][Bootstrap.com]][Bootstrap-url]
-* [![JQuery][JQuery.com]][JQuery-url]
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
-
-
 
 <!-- GETTING STARTED -->
 ## Getting Started
@@ -101,7 +96,7 @@ This is an example of how to list things you need to use the software and how to
 
 ### Installation
 
-1. Get a free API Key at [https://example.com](https://example.com)
+1. Get a free API Key at [example](https://example.com)
 2. Clone the repo
    ```sh
    git clone https://github.com/alangmartini/All-projects-publisher.git
@@ -208,11 +203,11 @@ Project Link: [https://github.com/alangmartini/All-projects-publisher](https://g
 [linkedin-shield]: https://img.shields.io/badge/-LinkedIn-black.svg?style=for-the-badge&logo=linkedin&colorB=555
 [linkedin-url]: https://linkedin.com/in/alangmartini
 [product-screenshot]: images/screenshot.png
-[Next.js]: https://img.shields.io/badge/next.js-000000?style=for-the-badge&logo=nextdotjs&logoColor=white
-[Next-url]: https://nextjs.org/
+[Next.js]: https://img.shields.io/badge/Javascript-35495E?style=for-the-badge&logo=js&logoColor=4FC08D
+[Next-url]: https://www.javascript.com/
 [React.js]: https://img.shields.io/badge/React-20232A?style=for-the-badge&logo=react&logoColor=61DAFB
 [React-url]: https://reactjs.org/
-[Vue.js]: https://img.shields.io/badge/Vue.js-35495E?style=for-the-badge&logo=vuedotjs&logoColor=4FC08D
+[Vue.js]: https://img.shields.io/badge/Javascript-35495E?style=for-the-badge&logo=js&logoColor=4FC08D
 [Vue-url]: https://vuejs.org/
 [Angular.io]: https://img.shields.io/badge/Angular-DD0031?style=for-the-badge&logo=angular&logoColor=white
 [Angular-url]: https://angular.io/
