@@ -10,9 +10,9 @@
   "description": "",
   "dependencies": {
     "child-process": "^1.0.2",
+    "eslint-config-trybe-frontend": "^1.7.0",
     "graphql": "^16.6.0",
     "graphql-tag": "^2.12.6",
-    "inquirer": "^9.1.4",
-    "lodash": "^4.17.21"
+    "inquirer": "^9.1.4"
   }
 }
