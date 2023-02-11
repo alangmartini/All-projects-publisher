@@ -12,7 +12,6 @@ import currentTrybeQuestion from './inquirerQuestions/trybeHandling/currentTrybe
 import useDefaultNameForProjectsQuestion from './inquirerQuestions/projectNameHandling/useDefaultName.mjs';
 import whatProjectsToUploadQuestion from './inquirerQuestions/projectHandling/whatProjectsToUpload.mjs';
 import questionRepositoryNameFromInput from './inquirerQuestions/projectNameHandling/projectNameForRepo.mjs';
-import projectRenames from './renames/projectRenaming.mjs';
 import standartBranchNameQuestion from './inquirerQuestions/branchHandling/stardartBranchQuestion.mjs';
 import userNameForRepoNameQuestion from './inquirerQuestions/projectNameHandling/userNameForRepoNameQuestion.mjs';
 
