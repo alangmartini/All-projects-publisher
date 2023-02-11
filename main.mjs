@@ -79,7 +79,7 @@ async function deleteRepository(repository) {
   }
 }
 
-async function getBranchName(hasStandartBranch) {
+async function getBranchName(hasStandartBranch, repository) {
   if (!hasStandartBranch) {
     // Get current project branchName from input
     const { branchNameFromInput } = await inquirer
@@ -89,7 +89,7 @@ async function getBranchName(hasStandartBranch) {
   return hasStandartBranch;
 }
 
-async function getProjectName(declareNameForProject, userName) {
+async function getProjectName(declareNameForProject, userName, repository) {
   // If user decided to declare new project right now
   if (declareNameForProject === 'Agora') {
     // Get new repository name
@@ -109,9 +109,9 @@ async function runPublisher(
   declareNameForProject,
   userName,
 ) {
-  const branchForCurrentRepository = await getBranchName(hasStandartBranch);
+  const branchForCurrentRepository = await getBranchName(hasStandartBranch, repository);
 
-  const projectName = await getProjectName(declareNameForProject, userName);
+  const projectName = await getProjectName(declareNameForProject, userName, repository);
 
   const asyncSpawn = async () => new Promise((resolve, reject) => {
     const publisherProcess = spawn(
