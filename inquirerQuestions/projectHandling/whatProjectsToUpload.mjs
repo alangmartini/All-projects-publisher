@@ -5,7 +5,7 @@ const whatProjectsToUploadQuestion = (projectNames) => ([
     message: 'Marque todos os projetos que você quer subir',
     choices: [...projectNames],
     loop: false,
-  }
+  },
 ]);
 
 export default whatProjectsToUploadQuestion;

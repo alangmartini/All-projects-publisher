@@ -4,7 +4,7 @@
 import { promisify } from 'util';
 import { exec, spawn } from 'child_process';
 import inquirer from 'inquirer';
-import { logGreenBigBold, logRedBigBold, logYellowBigBold } from './colorfulLogs/logs.njs';
+import { logGreenBigBold, logRedBigBold, logYellowBigBold } from './colorfulLogs/logs.mjs';
 // Question imports
 import branchesStardartQuestion from './inquirerQuestions/branchHandling/isBranchesStardartQuestion.mjs';
 import questionBranchNameFromInput from './inquirerQuestions/branchHandling/branchNameUnique.mjs';
@@ -80,37 +80,41 @@ async function deleteRepository(repository) {
   }
 }
 
+async function getBranchName(hasStandartBranch) {
+  if (!hasStandartBranch) {
+    // Get current project branchName from input
+    const { branchNameFromInput } = await inquirer
+      .prompt(questionBranchNameFromInput(repository));
+    return branchNameFromInput;
+  }
+  return hasStandartBranch;
+}
+
+async function getProjectName(declareNameForProject, userName) {
+  // If user decided to declare new project right now
+  if (declareNameForProject === 'Agora') {
+    // Get new repository name
+    const { repoName } = await inquirer
+      .prompt(questionRepositoryNameFromInput(repository));
+    // To-do: format the name so its '-' split
+    const formatedRepoName = repoName.split(' ').join('-');
+    return formatedRepoName;
+  }
+  return `${userName
+    .split(' ').join('-')}-${projectRenames[repository].split(' ').join('-')}`;
+}
+
 async function runPublisher(
   repository,
   hasStandartBranch,
   declareNameForProject,
   userName,
 ) {
-  // If there is no standartBranchName, get one from input.
-  let branchForCurrentRepository;
-  if (!hasStandartBranch) {
-    // Get current project branchName from input
-    const { branchNameFromInput } = await inquirer
-      .prompt(questionBranchNameFromInput(repository));
-    branchForCurrentRepository = branchNameFromInput;
-  } else {
-    branchForCurrentRepository = hasStandartBranch;
-  }
+  const branchForCurrentRepository = await getBranchName(hasStandartBranch);
 
-  let projectName;
-  if (declareNameForProject === 'Agora') {
-    // Get new repository name
-    const { repoName } = await inquirer
-      .prompt(questionRepositoryNameFromInput(repository));
-    // To-do: format the name so its '-' split
-    projectName = repoName;
-  } else {
-    projectName = `${userName
-      .split(' ').join('-')}-${projectRenames[repository].split(' ').join('-')}`;
-  }
+  const projectName = await getProjectName(declareNameForProject, userName);
 
   const asyncSpawn = async () => new Promise((resolve, reject) => {
-    console.log(repository);
     const publisherProcess = spawn(
       'trybe-publisher',
       ['-b', `${branchForCurrentRepository}`, '-p', `${projectName}`],
@@ -131,16 +135,16 @@ async function runPublisher(
 
   try {
     await asyncSpawn();
-    console.log(`Finished publishing ${repository} as ${projectName}`);
-  } catch (e) {
-    console.log('Aconteceu algum erro! ');
-    console.log(e.error);
+    logGreenBigBold(`Finalizado a publicação de ${repository} como ${projectName}`);
+  } catch (error) {
+    logRedBigBold('Aconteceu algum erro! ');
+    console.log(error.stdout);
+    logYellowBigBold('Continuando para o próximo repositório');
   }
 }
 
 async function main() {
   const { areBranchesStandartized } = await inquirer.prompt(branchesStardartQuestion);
-  console.log(areBranchesStandartized);
 
   let standartBranchName;
   if (areBranchesStandartized === 'Sim') {
