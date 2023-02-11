@@ -104,12 +104,32 @@ async function runPublisher(repository,
     projectName = `${userName.split(' ').join('-')}-${projectRenames[repository].split(' ').join('-')}`;
   }
 
+  const asyncSpawn = async () => {
+    return new Promise((resolve, reject) => {
+      console.log(repository)
+      const publisherProcess = spawn(`trybe-publisher`, [`-b`, `${branchForCurrentRepository}`, `-p`, `${projectName}`], {
+        cwd: repository,
+        stdio: "inherit"
+      });
+
+      publisherProcess.on('exit', (code) => {
+        if (code === 0) {
+          resolve()
+        } else {
+          reject(new Error(`trybe publisher exit with error ${code}`))
+        }
+      })
+    });
+  } 
+
   try {
-    const { stdout,
-      stderr } = await runCommand(`cd ${repository} && trybe-publisher -b "${branchForCurrentRepository}" -p "${projectName}"`);
+    // const { stdout,
+    //   stderr } = await runCommand(`cd ${repository} && trybe-publisher -b "${branchForCurrentRepository}" -p "${projectName}"`);
+      await asyncSpawn();
+      console.log(`Finished publishing ${repository} as ${projectName}`)
   } 
   catch(e) {
-    console.log(e)
+    console.log(e.error)
   }
 
 }
@@ -145,18 +165,23 @@ async function main() {
   for (let project of projectsToUpload) {
     await cloneRepository(project);
     await runPublisher(project, standartBranchName, useDefaultNameForProjects, userName);
+    // await deleteClone(project)
   }
 }
 
 await main()
 
-// try {
-//   const { stdout,
-//     stderr } = await asyncExec(`cd sd-026-b-project-lessons-learned && trybe-publisher -b "alan" -p "Testes-unitarios-jest"`);
 
-//   console.log(stdout)
-//   console.log(stderr)
+// publisherProcess.on("exit", code => {
+//   console.log(`trybe-publisher exited with code ${code}`);
+// });
+
+// try {
+//   const stAlgo = await asyncExec(`cd sd-026-b-project-lessons-learned && trybe-publisher -b "alan" -p "Testes-unitarios-jestt"`);
+
+//   console.log(stAlgo.stdout)
 // } 
 // catch(e) {
-//   console.log(e)
+//   console.log('Atenção: o seguinte erro foi gerado pelo trybe-publisher:')
+//   console.log(e.stdout)
 // }
