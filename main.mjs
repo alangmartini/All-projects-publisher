@@ -89,6 +89,35 @@ async function getBranchName(hasStandartBranch, repository) {
   return hasStandartBranch;
 }
 
+async function uploadNewReadme(repository) {
+  await asyncExec(`cp NEW_README.md ./${repository}/README.md`);
+  const projectName = repository.split('project')[1].toUpperCase().split('-').join(' ');
+  await asyncExec(`sed -i '42s/project_title/${projectName}/`);
+
+  const asyncGitSpawn = async (commandArray) => new Promise((resolve, reject) => {
+    const publisherProcess = spawn(
+      'git',
+      commandArray,
+      {
+        cwd: repository,
+        stdio: 'inherit',
+      },
+    );
+
+    publisherProcess.on('exit', (code) => {
+      if (code === 0) {
+        resolve();
+      } else {
+        reject(new Error(`git exit with error ${code}`));
+      }
+    });
+  });
+
+  await asyncGitSpawn(['add', '.']);
+  await asyncGitSpawn(['commit', '-am', 'added new readme']);
+  await asyncGitSpawn(['push', 'origin', 'main']);
+}
+
 async function getProjectName(declareNameForProject, userName, repository) {
   // If user decided to declare new project right now
   if (declareNameForProject === 'Agora') {
@@ -162,20 +191,23 @@ async function main() {
     userName = userNameForRepo;
   }
 
-  console.log('Pegando todos os projetos da sua turma atualmente disponíveis no GitHub');
+  logYellowBigBold('Pegando todos os projetos da sua turma atualmente disponíveis no GitHub');
   const projectsFromCurrentTrybe = await fetchProjects(currentTrybe);
 
   const { projectsToUpload } = await inquirer
     .prompt(whatProjectsToUploadQuestion(projectsFromCurrentTrybe));
 
-  console.log(`Beleza! Agora começara o process de clonar o projeto, 
-  achar sua branch e renomear o projeto (caso tenha decido) para subi-lo em seu Github`);
+  logGreenBigBold('Beleza! Agora começara o process de clonar o projeto,'
+  + 'achar sua branch e renomear o projeto (caso tenha decidido) para subi-lo em seu Github');
 
   for (const project of projectsToUpload) {
     await cloneRepository(project);
     await runPublisher(project, standartBranchName, useDefaultNameForProjects, userName);
+    await uploadNewReadme(project);
     await deleteRepository(project);
   }
+
+  logGreenBigBold('Finalizado! Até a próxima');
 }
 
 await main();
