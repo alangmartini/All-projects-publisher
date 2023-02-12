@@ -1,22 +1,23 @@
-import inquirer from "inquirer";
-import { logYellowBigBold } from "./colorfulLogs/logs.mjs";
-import branchesStardartQuestion from "./inquirerQuestions/branchHandling/isBranchesStardartQuestion.mjs";
-import standartBranchNameQuestion from "./inquirerQuestions/branchHandling/stardartBranchQuestion.mjs";
-import whatProjectsToUploadQuestion from "./inquirerQuestions/projectHandling/whatProjectsToUpload.mjs";
-import useDefaultNameForProjectsQuestion from "./inquirerQuestions/projectNameHandling/useDefaultName.mjs";
-import usernameQuestion from "./inquirerQuestions/projectNameHandling/usernameQuestion.mjs";
-import currentTrybeQuestion from "./inquirerQuestions/trybeHandling/currentTrybeQuestion.mjs";
-import fetchProjects from "./utils/fetchProject.mjs";
+/* eslint-disable max-len */
+import inquirer from 'inquirer';
+import { logYellowBigBold } from './colorfulLogs/logs.mjs';
+// import branchesStardartQuestion from './inquirerQuestions/branchHandling/isBranchesStardartQuestion.mjs';
+// import standartBranchNameQuestion from './inquirerQuestions/branchHandling/stardartBranchQuestion.mjs';
+import whatProjectsToUploadQuestion from './inquirerQuestions/projectHandling/whatProjectsToUpload.mjs';
+import useDefaultNameForProjectsQuestion from './inquirerQuestions/projectNameHandling/useDefaultName.mjs';
+import usernameQuestion from './inquirerQuestions/projectNameHandling/usernameQuestion.mjs';
+import currentTrybeQuestion from './inquirerQuestions/trybeHandling/currentTrybeQuestion.mjs';
+import fetchProjects from './utils/fetchProject.mjs';
 
-async function getStandartBranchName() {
-  const { areBranchesStandartized } = await inquirer.prompt(branchesStardartQuestion);
+// async function getStandartBranchName() {
+//   const { areBranchesStandartized } = await inquirer.prompt(branchesStardartQuestion);
 
-  if (areBranchesStandartized === 'Sim') {
-    const { _standartBranchName } = await inquirer.prompt(standartBranchNameQuestion);
-    return _standartBranchName;
-  }
-  return null;
-}
+//   if (areBranchesStandartized === 'Sim') {
+//     const { _standartBranchName } = await inquirer.prompt(standartBranchNameQuestion);
+//     return _standartBranchName;
+//   }
+//   return null;
+// }
 
 async function getUsername() {
   const { usernameAnswer } = await inquirer.prompt(usernameQuestion);

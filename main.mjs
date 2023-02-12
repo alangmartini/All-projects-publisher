@@ -1,80 +1,25 @@
-/* eslint-disable max-lines */
-/* eslint-disable max-len */
-/* eslint-disable no-restricted-syntax */
 /* eslint-disable no-await-in-loop */
-import { promisify } from 'util';
-import { exec, spawn } from 'child_process';
+/* eslint-disable no-restricted-syntax */
+/* eslint-disable max-len */
+import { spawn } from 'child_process';
 import inquirer from 'inquirer';
 import { logGreenBigBold, logRedBigBold, logYellowBigBold } from './src/colorfulLogs/logs.mjs';
 // Question imports
-import questionBranchNameFromInput from './src/inquirerQuestions/branchHandling/branchNameUnique.mjs';
+// import questionBranchNameFromInput from './src/inquirerQuestions/branchHandling/branchNameUnique.mjs';
 import questionRepositoryNameFromInput from './src/inquirerQuestions/projectNameHandling/projectNameForRepo.mjs';
 import handleMultiplePrsQuestion from './src/inquirerQuestions/branchHandling/handleMultiplePrsQuestion.mjs';
 import getUserInfo from './src/userInfo.mjs';
+import { cloneRepository, deleteRepository, uploadNewReadme } from './src/manageLocalRepository.mjs';
 
-const asyncExec = promisify(exec);
-
-async function cloneRepository(repository) {
-  const { stdout } = await asyncExec('ls');
-  const isProjectExistent = stdout.match(repository);
-
-  if (isProjectExistent) {
-    logGreenBigBold('Encontrado projeto na sua pasta!');
-  } else {
-    logYellowBigBold(`Clonando ${repository}`);
-    const cloneURL = `git@github.com:tryber/${repository}.git`;
-    await asyncExec(`git clone ${cloneURL}`);
-  }
-}
-
-async function deleteRepository(repository) {
-  try {
-    logYellowBigBold('DELETANDO REPOSITORIO CLONADO');
-    await asyncExec(`rm -rf ${repository}`);
-  } catch (e) {
-    logRedBigBold('Algo deu errado ao deletar o repositorio:');
-    console.log(error.stdout);
-  }
-}
-
-async function getBranchName(hasStandartBranch, repository) {
-  if (!hasStandartBranch) {
-    // Get current project branchName from input
-    const { branchNameFromInput } = await inquirer
-      .prompt(questionBranchNameFromInput(repository));
-    return branchNameFromInput;
-  }
-  return hasStandartBranch;
-}
-
-async function uploadNewReadme(repository) {
-  await asyncExec(`cp NEW_README.md ./${repository}/README.md`);
-  const projectName = repository.split('project')[1].toUpperCase().split('-').join(' ');
-  await asyncExec(`sed -i '42s/project_title/"${projectName}"/' ./${repository}/README.md`);
-
-  const asyncGitSpawn = async (commandArray) => new Promise((resolve, reject) => {
-    const publisherProcess = spawn(
-      'git',
-      commandArray,
-      {
-        cwd: repository,
-        stdio: 'inherit',
-      },
-    );
-
-    publisherProcess.on('exit', (code) => {
-      if (code === 0) {
-        resolve();
-      } else {
-        reject(new Error(`git exit with error ${code}`));
-      }
-    });
-  });
-
-  await asyncGitSpawn(['add', '.']);
-  await asyncGitSpawn(['commit', '-am', 'added new readme']);
-  await asyncGitSpawn(['push', 'origin', 'main']);
-}
+// async function getBranchName(hasStandartBranch, repository) {
+//   if (!hasStandartBranch) {
+//     // Get current project branchName from input
+//     const { branchNameFromInput } = await inquirer
+//       .prompt(questionBranchNameFromInput(repository));
+//     return branchNameFromInput;
+//   }
+//   return hasStandartBranch;
+// }
 
 async function getProjectName(declareNameForProject, userName, repository) {
   // If user decided to declare new project right now
@@ -185,7 +130,10 @@ async function run(
 ) {
   // const branchForCurrentRepository = await getBranchName(hasStandartBranch, repository);
 
-  const projectName = await getProjectName(declareNameForProject, userName, repository);
+  const projectName = await getProjectName(declareNameForProject, username, repository);
+
+  logGreenBigBold('Beleza! Agora começara o processo de clonar o projeto,'
+  + ' achar sua branch e renomear o projeto (caso tenha decidido) para subi-lo em seu Github');
 
   const branchName = await getBranchFromPR(repository, username);
 
@@ -194,12 +142,8 @@ async function run(
 
 async function main() {
   // Get necessary info for running the script
-
   const userInfo = await getUserInfo();
   const { username, useDefaultNameForProjects, projectsToUpload, standartBranchName } = userInfo;
-
-  logGreenBigBold('Beleza! Agora começara o processo de clonar o projeto,'
-  + ' achar sua branch e renomear o projeto (caso tenha decidido) para subi-lo em seu Github');
 
   // Run the script for each project
   for (const project of projectsToUpload) {
