@@ -154,7 +154,7 @@ Distributed under the MIT License. See `LICENSE.txt` for more information.
 <!-- CONTACT -->
 ## Contact
 
-Your Name - gmartinialan@gmail.com@gmartinialan@gmail.com.com
+Alan Martini - gmartinialan@gmail.com
 
 Project Link: [https://github.com/alangmartini/All-projects-publisher](https://github.com/alangmartini/All-projects-publisher)
 
