@@ -91,7 +91,7 @@ async function getUserPr(repository, username) {
 
 async function handlePRS(arrayOfUserBranchs) {
   if (arrayOfUserBranchs.length > 1) {
-    const { chosenBranch } = await inquirer(handleMultiplePrsQuestion(arrayOfUserPrs));
+    const { chosenBranch } = await inquirer(handleMultiplePrsQuestion(arrayOfUserBranchs));
     return chosenBranch;
   }
   if (arrayOfUserBranchs.length === 0) {
