@@ -87,35 +87,22 @@ This is an example of how you may give instructions on setting up your project l
 To get a local copy up and running follow these simple example steps.
 
 ### Prerequisites
+Como esse script apenas roda o Trybe Publisher para os projetos escolhidos, todos os prerequisitos do Trybe Publisher são 
+necessário aqui também!
 
-This is an example of how to list things you need to use the software and how to install them.
-* npm
-  ```sh
-  npm install npm@latest -g
-  ```
+Portanto, você precisará:
+
+* [Github CLI](https://cli.github.com/manual/) configurado (autenticado).
+* [Trybe Publisher](https://github.com/tryber/student-repo-publisher) instalado
+* Npm
 
 ### Installation
 
-Dica: quer não ter que confirmar para cada repositório? Entre no arquivo
-```trybe-publisher``` em ```/usr/local/bin``` e delete a linha 194 e 197:
+1. Clone o repositório
+2. No root instale as dependências:
 
-```
-194: read -p "Tem certeza que deseja prosseguir? (N/s)" -n 1 -r
-197: [[ ! $REPLY =~ ^[Ss]$ ]] && TrybeWarn "Entendido! Nada será feito :)" && exit 1
-```
-
-1. Get a free API Key at [example](https://example.com)
-2. Clone the repo
-   ```sh
-   git clone https://github.com/alangmartini/All-projects-publisher.git
-   ```
-3. Install NPM packages
    ```sh
    npm install
-   ```
-4. Enter your API in `config.js`
-   ```js
-   const API_KEY = 'ENTER YOUR API';
    ```
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
@@ -124,14 +111,6 @@ Dica: quer não ter que confirmar para cada repositório? Entre no arquivo
 
 <!-- USAGE EXAMPLES -->
 ## Usage
-
-Dica: quer não ter que confirmar para cada repositório? Entre no arquivo
-```trybe-publisher``` em ```/usr/local/bin``` e delete a linha 194 e 197:
-
-```
-194: read -p "Tem certeza que deseja prosseguir? (N/s)" -n 1 -r
-197: [[ ! $REPLY =~ ^[Ss]$ ]] && TrybeWarn "Entendido! Nada será feito :)" && exit 1
-```
 
 Use this space to show useful examples of how a project can be used. Additional screenshots, code examples and demos work well in this space. You may also link to more resources.
 
