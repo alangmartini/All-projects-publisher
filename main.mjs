@@ -1,122 +1,26 @@
-/* eslint-disable max-len */
-/* eslint-disable no-restricted-syntax */
 /* eslint-disable no-await-in-loop */
-import { promisify } from 'util';
-import { exec, spawn } from 'child_process';
+/* eslint-disable no-restricted-syntax */
+/* eslint-disable max-len */
+import { spawn } from 'child_process';
 import inquirer from 'inquirer';
-import { logGreenBigBold, logRedBigBold, logYellowBigBold } from './colorfulLogs/logs.mjs';
+import { logGreenBigBold, logRedBigBold, logYellowBigBold } from './src/colorfulLogs/logs.mjs';
 // Question imports
-import branchesStardartQuestion from './inquirerQuestions/branchHandling/isBranchesStardartQuestion.mjs';
-import questionBranchNameFromInput from './inquirerQuestions/branchHandling/branchNameUnique.mjs';
-import currentTrybeQuestion from './inquirerQuestions/trybeHandling/currentTrybeQuestion.mjs';
-import useDefaultNameForProjectsQuestion from './inquirerQuestions/projectNameHandling/useDefaultName.mjs';
-import whatProjectsToUploadQuestion from './inquirerQuestions/projectHandling/whatProjectsToUpload.mjs';
-import questionRepositoryNameFromInput from './inquirerQuestions/projectNameHandling/projectNameForRepo.mjs';
-import standartBranchNameQuestion from './inquirerQuestions/branchHandling/stardartBranchQuestion.mjs';
-import userNameForRepoNameQuestion from './inquirerQuestions/projectNameHandling/userNameForRepoNameQuestion.mjs';
+// import questionBranchNameFromInput from './src/inquirerQuestions/branchHandling/branchNameUnique.mjs';
+import questionRepositoryNameFromInput from './src/inquirerQuestions/projectNameHandling/projectNameForRepo.mjs';
+import handleMultiplePrsQuestion from './src/inquirerQuestions/branchHandling/handleMultiplePrsQuestion.mjs';
+import getUserInfo from './src/userInfo.mjs';
+import { cloneRepository, deleteRepository, uploadNewReadme } from './src/manageLocalRepository.mjs';
+import asyncExec from './src/utils/asyncExec.mjs';
 
-const asyncExec = promisify(exec);
-
-const query = `gh api graphql --paginate -f query='
-query($endCursor: String) { 
-  organization(login: "tryber") { 
-    repositories(first: 100, after: $endCursor) {
-      nodes { name }
-      pageInfo {
-        hasNextPage
-        endCursor
-      }
-    }
-  }
-}
-'`;
-
-async function fetchProjects(triboAtual) {
-  let repositories;
-  try {
-    const { stdout, stderr } = await asyncExec(query);
-    // const reg = new RegExp(`sd-0${triboAtual}-[ab]-project.*?(?="},)`, 'g');
-    const reg = new RegExp(`sd-0${triboAtual}-[ab].*?(?="},)`, 'g');
-    const matchIterator = stdout.matchAll(reg);
-
-    const repositoriesArr = [];
-    for (const match of matchIterator) {
-      repositoriesArr.push(match[0]);
-    }
-
-    repositories = repositoriesArr;
-
-    if (stderr) {
-      throw new Error(stderr);
-    }
-  } catch (err) {
-    console.error(err);
-  }
-
-  return repositories;
-}
-
-async function cloneRepository(repository) {
-  const { stdout } = await asyncExec('ls');
-  const isProjectExistent = stdout.match(repository);
-
-  if (isProjectExistent) {
-    logGreenBigBold('Encontrado projeto na sua pasta!');
-  } else {
-    logYellowBigBold(`Clonando ${repository}`);
-    const cloneURL = `git@github.com:tryber/${repository}.git`;
-    await asyncExec(`git clone ${cloneURL}`);
-  }
-}
-
-async function deleteRepository(repository) {
-  try {
-    logYellowBigBold('DELETANDO REPOSITORIO CLONADO');
-    await asyncExec(`rm -rf ${repository}`);
-  } catch (e) {
-    logRedBigBold('Algo deu errado ao deletar o repositorio:');
-    console.log(error.stdout);
-  }
-}
-
-async function getBranchName(hasStandartBranch, repository) {
-  if (!hasStandartBranch) {
-    // Get current project branchName from input
-    const { branchNameFromInput } = await inquirer
-      .prompt(questionBranchNameFromInput(repository));
-    return branchNameFromInput;
-  }
-  return hasStandartBranch;
-}
-
-async function uploadNewReadme(repository) {
-  await asyncExec(`cp NEW_README.md ./${repository}/README.md`);
-  const projectName = repository.split('project')[1].toUpperCase().split('-').join(' ');
-  await asyncExec(`sed -i '42s/project_title/"${projectName}"/' ./${repository}/README.md`);
-
-  const asyncGitSpawn = async (commandArray) => new Promise((resolve, reject) => {
-    const publisherProcess = spawn(
-      'git',
-      commandArray,
-      {
-        cwd: repository,
-        stdio: 'inherit',
-      },
-    );
-
-    publisherProcess.on('exit', (code) => {
-      if (code === 0) {
-        resolve();
-      } else {
-        reject(new Error(`git exit with error ${code}`));
-      }
-    });
-  });
-
-  await asyncGitSpawn(['add', '.']);
-  await asyncGitSpawn(['commit', '-am', 'added new readme']);
-  await asyncGitSpawn(['push', 'origin', 'main']);
-}
+// async function getBranchName(hasStandartBranch, repository) {
+//   if (!hasStandartBranch) {
+//     // Get current project branchName from input
+//     const { branchNameFromInput } = await inquirer
+//       .prompt(questionBranchNameFromInput(repository));
+//     return branchNameFromInput;
+//   }
+//   return hasStandartBranch;
+// }
 
 async function getProjectName(declareNameForProject, userName, repository) {
   // If user decided to declare new project right now
@@ -124,7 +28,6 @@ async function getProjectName(declareNameForProject, userName, repository) {
     // Get new repository name
     const { repoName } = await inquirer
       .prompt(questionRepositoryNameFromInput(repository));
-    // To-do: format the name so its '-' split
     const formatedRepoName = repoName.split(' ').join('-');
     return formatedRepoName;
   }
@@ -132,16 +35,81 @@ async function getProjectName(declareNameForProject, userName, repository) {
     .split(' ').join('-')}-${projectRenames[repository].split(' ').join('-')}`;
 }
 
-async function runPublisher(
-  repository,
-  hasStandartBranch,
-  declareNameForProject,
-  userName,
-) {
-  const branchForCurrentRepository = await getBranchName(hasStandartBranch, repository);
+async function getUserPr(repository, username) {
+  const queryCurrentProjectPR = `gh api graphql --paginate -f query='
+  query ($endCursor: String) {
+    repository(owner: "tryber", name: "${repository}") {  
+      pullRequests (first: 100, after: $endCursor) {
+        edges {
+          node {
+            baseRefName
+            headRefName
+            author {
+              login
+            }
+          }
+        }
+        pageInfo {
+          hasNextPage
+          endCursor
+        }
+      }
+    }
+  }
+  '`;
 
-  const projectName = await getProjectName(declareNameForProject, userName, repository);
+  const graphQLQueryAnswer = await asyncExec(queryCurrentProjectPR);
+  const RegexIteratorOfObjectPR = graphQLQueryAnswer.stdout
+    .matchAll(/(?<=\{"node":).*?(?=}[\],])/g);
 
+  const arrayOfObjectPR = [];
+  for (const match of RegexIteratorOfObjectPR) {
+    arrayOfObjectPR.push(JSON.parse(match[0]));
+  }
+
+  const arrayOfUserPRS = arrayOfObjectPR
+    .filter((PR) => {
+      let isUser = false;
+      if (PR.author) {
+        const { author: { login } } = PR;
+        isUser = login.includes(username);
+      }
+
+      const isMergingInMaster = (
+        PR.baseRefName === 'master'
+        || PR.baseRefName === 'main'
+      );
+
+      return isUser && isMergingInMaster;
+    });
+
+  const arrayOfBranches = arrayOfUserPRS.map((PR) => PR.headRefName);
+  console.log(arrayOfBranches);
+  return arrayOfBranches;
+}
+
+async function handlePRS(arrayOfUserBranchs) {
+  if (arrayOfUserBranchs.length > 1) {
+    const { chosenBranch } = await inquirer(handleMultiplePrsQuestion(arrayOfUserPrs));
+    return chosenBranch;
+  }
+  if (arrayOfUserBranchs.length === 0) {
+    logRedBigBold('Nenhuma branch para esse login encontrado. Você digitou certo?');
+    throw new Error('No branch found');
+  }
+  return arrayOfUserBranchs[0];
+}
+
+async function getBranchFromPR(repository, username) {
+  const arrayOfUserBranchs = await getUserPr(repository, username);
+
+  const branchName = handlePRS(arrayOfUserBranchs);
+
+  logGreenBigBold('Branch para o projeto encontrada: ', branchName);
+  return branchName;
+}
+
+async function runTrybePublisher(branchForCurrentRepository, projectName, repository) {
   const asyncSpawn = async () => new Promise((resolve, reject) => {
     const publisherProcess = spawn(
       'trybe-publisher',
@@ -171,38 +139,33 @@ async function runPublisher(
   }
 }
 
+async function run(
+  repository,
+  hasStandartBranch,
+  declareNameForProject,
+  username,
+) {
+  // const branchForCurrentRepository = await getBranchName(hasStandartBranch, repository);
+
+  const projectName = await getProjectName(declareNameForProject, username, repository);
+
+  logGreenBigBold('Beleza! Agora começara o processo de clonar o projeto,'
+  + ' achar sua branch e renomear o projeto (caso tenha decidido) para subi-lo em seu Github');
+
+  const branchName = await getBranchFromPR(repository, username);
+
+  await runTrybePublisher(branchName, projectName, repository);
+}
+
 async function main() {
-  const { areBranchesStandartized } = await inquirer.prompt(branchesStardartQuestion);
+  // Get necessary info for running the script
+  const userInfo = await getUserInfo();
+  const { username, useDefaultNameForProjects, projectsToUpload, standartBranchName } = userInfo;
 
-  let standartBranchName;
-  if (areBranchesStandartized === 'Sim') {
-    const { _standartBranchName } = await inquirer.prompt(standartBranchNameQuestion);
-    standartBranchName = _standartBranchName;
-  }
-
-  const { currentTrybe } = await inquirer.prompt(currentTrybeQuestion);
-
-  const { useDefaultNameForProjects } = await inquirer
-    .prompt(useDefaultNameForProjectsQuestion);
-
-  let userName;
-  if (useDefaultNameForProjects === 'Depois') {
-    const { userNameForRepo } = await inquirer.prompt(userNameForRepoNameQuestion);
-    userName = userNameForRepo;
-  }
-
-  logYellowBigBold('Pegando todos os projetos da sua turma atualmente disponíveis no GitHub');
-  const projectsFromCurrentTrybe = await fetchProjects(currentTrybe);
-
-  const { projectsToUpload } = await inquirer
-    .prompt(whatProjectsToUploadQuestion(projectsFromCurrentTrybe));
-
-  logGreenBigBold('Beleza! Agora começara o process de clonar o projeto,'
-  + 'achar sua branch e renomear o projeto (caso tenha decidido) para subi-lo em seu Github');
-
+  // Run the script for each project
   for (const project of projectsToUpload) {
     await cloneRepository(project);
-    await runPublisher(project, standartBranchName, useDefaultNameForProjects, userName);
+    await run(project, standartBranchName, useDefaultNameForProjects, username);
     await uploadNewReadme(project);
     await deleteRepository(project);
   }
