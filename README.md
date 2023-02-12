@@ -96,6 +96,14 @@ This is an example of how to list things you need to use the software and how to
 
 ### Installation
 
+Dica: quer não ter que confirmar para cada repositório? Entre no arquivo
+```trybe-publisher``` em ```/usr/local/bin``` e delete a linha 194 e 197:
+
+```
+194: read -p "Tem certeza que deseja prosseguir? (N/s)" -n 1 -r
+197: [[ ! $REPLY =~ ^[Ss]$ ]] && TrybeWarn "Entendido! Nada será feito :)" && exit 1
+```
+
 1. Get a free API Key at [example](https://example.com)
 2. Clone the repo
    ```sh
@@ -116,6 +124,14 @@ This is an example of how to list things you need to use the software and how to
 
 <!-- USAGE EXAMPLES -->
 ## Usage
+
+Dica: quer não ter que confirmar para cada repositório? Entre no arquivo
+```trybe-publisher``` em ```/usr/local/bin``` e delete a linha 194 e 197:
+
+```
+194: read -p "Tem certeza que deseja prosseguir? (N/s)" -n 1 -r
+197: [[ ! $REPLY =~ ^[Ss]$ ]] && TrybeWarn "Entendido! Nada será feito :)" && exit 1
+```
 
 Use this space to show useful examples of how a project can be used. Additional screenshots, code examples and demos work well in this space. You may also link to more resources.
 
