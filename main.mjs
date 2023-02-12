@@ -4,6 +4,7 @@
 import { spawn } from 'child_process';
 import inquirer from 'inquirer';
 import { logGreenBigBold, logRedBigBold, logYellowBigBold } from './src/colorfulLogs/logs.mjs';
+
 // Question imports
 // import questionBranchNameFromInput from './src/inquirerQuestions/branchHandling/branchNameUnique.mjs';
 import questionRepositoryNameFromInput from './src/inquirerQuestions/projectNameHandling/projectNameForRepo.mjs';
@@ -150,7 +151,8 @@ async function run(
   const projectName = await getProjectName(declareNameForProject, username, repository);
 
   logGreenBigBold('Beleza! Agora começara o processo de clonar o projeto,'
-  + ' achar sua branch e renomear o projeto (caso tenha decidido) para subi-lo em seu Github');
+  + ' achar sua branch e renomear o projeto (caso tenha decidido)'
+  + ' para subi-lo em seu Github');
 
   const branchName = await getBranchFromPR(repository, username);
 
@@ -160,7 +162,8 @@ async function run(
 async function main() {
   // Get necessary info for running the script
   const userInfo = await getUserInfo();
-  const { username, useDefaultNameForProjects, projectsToUpload, standartBranchName } = userInfo;
+  const { username, useDefaultNameForProjects, projectsToUpload,
+    standartBranchName } = userInfo;
 
   // Run the script for each project
   for (const project of projectsToUpload) {
