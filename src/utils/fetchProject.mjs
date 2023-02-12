@@ -1,3 +1,5 @@
+import asyncExec from './asyncExec.mjs';
+
 /* eslint-disable no-restricted-syntax */
 const query = `gh api graphql --paginate -f query='
 query($endCursor: String) { 

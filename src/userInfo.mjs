@@ -64,7 +64,6 @@ async function getUserInfo() {
     username,
     useDefaultNameForProjects,
     projectsToUpload,
-    standartBranchName,
   };
 }
 
