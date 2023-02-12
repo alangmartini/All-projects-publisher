@@ -82,9 +82,13 @@
 
 <!-- GETTING STARTED -->
 ## Getting Started
+Dica: quer não ter que confirmar para cada repositório? Entre no arquivo
+```trybe-publisher``` em ```/usr/local/bin``` e delete a linha 194 e 197:
 
-This is an example of how you may give instructions on setting up your project locally.
-To get a local copy up and running follow these simple example steps.
+```
+194: read -p "Tem certeza que deseja prosseguir? (N/s)" -n 1 -r
+197: [[ ! $REPLY =~ ^[Ss]$ ]] && TrybeWarn "Entendido! Nada será feito :)" && exit 1
+```
 
 ### Prerequisites
 Como esse script apenas roda o Trybe Publisher para os projetos escolhidos, todos os prerequisitos do Trybe Publisher são 
@@ -97,6 +101,13 @@ Portanto, você precisará:
 * Npm
 
 ### Installation
+Dica: quer não ter que confirmar para cada repositório? Entre no arquivo
+```trybe-publisher``` em ```/usr/local/bin``` e delete a linha 194 e 197:
+
+```
+194: read -p "Tem certeza que deseja prosseguir? (N/s)" -n 1 -r
+197: [[ ! $REPLY =~ ^[Ss]$ ]] && TrybeWarn "Entendido! Nada será feito :)" && exit 1
+```
 
 1. Clone o repositório
 2. No root instale as dependências:
