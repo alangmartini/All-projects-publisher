@@ -92,7 +92,7 @@ async function getBranchName(hasStandartBranch, repository) {
 async function uploadNewReadme(repository) {
   await asyncExec(`cp NEW_README.md ./${repository}/README.md`);
   const projectName = repository.split('project')[1].toUpperCase().split('-').join(' ');
-  await asyncExec(`sed -i '42s/project_title/"${projectName}"/'`);
+  await asyncExec(`sed -i '42s/project_title/"${projectName}"/' ./${repository}/README.md`);
 
   const asyncGitSpawn = async (commandArray) => new Promise((resolve, reject) => {
     const publisherProcess = spawn(
