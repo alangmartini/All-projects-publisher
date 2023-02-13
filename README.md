@@ -128,7 +128,12 @@ Dica: quer não ter que confirmar para cada repositório? Entre no arquivo
 <!-- USAGE EXAMPLES -->
 ## Usage
 
-Follow the beacon. Execute o script após instalar os pré-requisitos
+Rode o script com:
+```sh
+node main.mjs
+```
+
+E follow the beacon. Execute o script após instalar os pré-requisitos
 e dar um npm install, e leia com atenção as mensagens. Sem segredo.
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
