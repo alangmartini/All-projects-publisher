@@ -6,22 +6,11 @@ import inquirer from 'inquirer';
 import { logGreenBigBold, logRedBigBold, logYellowBigBold } from './src/colorfulLogs/logs.mjs';
 
 // Question imports
-// import questionBranchNameFromInput from './src/inquirerQuestions/branchHandling/branchNameUnique.mjs';
 import questionRepositoryNameFromInput from './src/inquirerQuestions/projectNameHandling/projectNameForRepo.mjs';
 import handleMultiplePrsQuestion from './src/inquirerQuestions/branchHandling/handleMultiplePrsQuestion.mjs';
 import getUserInfo from './src/userInfo.mjs';
 import { cloneRepository, deleteRepository, uploadNewReadme } from './src/manageLocalRepository.mjs';
 import asyncExec from './src/utils/asyncExec.mjs';
-
-// async function getBranchName(hasStandartBranch, repository) {
-//   if (!hasStandartBranch) {
-//     // Get current project branchName from input
-//     const { branchNameFromInput } = await inquirer
-//       .prompt(questionBranchNameFromInput(repository));
-//     return branchNameFromInput;
-//   }
-//   return hasStandartBranch;
-// }
 
 async function getProjectName(declareNameForProject, userName, repository) {
   // If user decided to declare new project right now
