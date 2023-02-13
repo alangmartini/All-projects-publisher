@@ -97,6 +97,11 @@ O script funciona realizando uma query para a API do GitHub
 e pegando todos os projetos da turma atual. E então, para cada
 projeto selecionado ele faz outra query para ver qual PR o usuário é criador e pega o nome da branch, de forma a suprir ao Trybe Publisher, que faz o restante do trabalho. O script também clona o repositório, adiciona um novo README e exclui o repositório, para facilitar ainda mais o trabalho.
 
+
+!!! Importante !!!
+
+Como o Trybe Publisher pega as suas branches da partir do PR, você necessariamente precisa ter aberto pelo menos um PR no projeto. Se você tentar subir um projeto que você não fez com ele, vai dar erro!
+
 ### Prerequisites
 Como esse script apenas roda o Trybe Publisher para os projetos escolhidos, todos os prerequisitos do Trybe Publisher são 
 necessário aqui também!
