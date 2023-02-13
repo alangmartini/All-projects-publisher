@@ -19,7 +19,6 @@ async function fetchProjects(triboAtual) {
   let repositories;
   try {
     const { stdout, stderr } = await asyncExec(query);
-    // const reg = new RegExp(`sd-0${triboAtual}-[ab]-project.*?(?="},)`, 'g');
     const reg = new RegExp(`sd-0${triboAtual}-[ab].*?(?="},)`, 'g');
     const matchIterator = stdout.matchAll(reg);
 

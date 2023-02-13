@@ -32,8 +32,10 @@ async function getProjectName(declareNameForProject, userName, repository) {
     const formatedRepoName = repoName.split(' ').join('-');
     return formatedRepoName;
   }
+  const formatedRepo = repository.split('project');
+
   return `${userName
-    .split(' ').join('-')}-${projectRenames[repository].split(' ').join('-')}`;
+    .split(' ').join('-')}-${formatedRepo}`;
 }
 
 async function getUserPr(repository, username) {
@@ -85,7 +87,7 @@ async function getUserPr(repository, username) {
     });
 
   const arrayOfBranches = arrayOfUserPRS.map((PR) => PR.headRefName);
-  console.log(arrayOfBranches);
+
   return arrayOfBranches;
 }
 
