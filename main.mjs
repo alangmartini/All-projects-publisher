@@ -89,6 +89,8 @@ async function handlePRS(arrayOfUserBranchs) {
     logRedBigBold('Nenhuma branch para esse login encontrado. Você digitou certo?');
     throw new Error('No branch found');
   }
+  
+  logGreenBigBold('Branch para o projeto encontrada: ', arrayOfUserBranchs[0]);
   return arrayOfUserBranchs[0];
 }
 
@@ -97,7 +99,6 @@ async function getBranchFromPR(repository, username) {
 
   const branchName = handlePRS(arrayOfUserBranchs);
 
-  logGreenBigBold('Branch para o projeto encontrada: ', branchName);
   return branchName;
 }
 
