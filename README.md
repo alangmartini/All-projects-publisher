@@ -171,7 +171,7 @@ Project Link: [https://github.com/alangmartini/All-projects-publisher](https://g
 [issues-shield]: https://img.shields.io/github/issues/alangmartini/All-projects-publisher.svg?style=for-the-badge
 [issues-url]: https://github.com/alangmartini/All-projects-publisher/issues
 [license-shield]: https://img.shields.io/github/license/alangmartini/All-projects-publisher.svg?style=for-the-badge
-[license-url]: https://github.com/alangmartini/All-projects-publisher/blob/master/LICENSE.txt
+[license-url]: https://github.com/alangmartini/All-projects-publisher/blob/master/LICENSE
 [linkedin-shield]: https://img.shields.io/badge/-LinkedIn-black.svg?style=for-the-badge&logo=linkedin&colorB=555
 [linkedin-url]: https://linkedin.com/in/alangmartini
 [product-screenshot]: images/screenshot.png
