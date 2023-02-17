@@ -161,6 +161,13 @@ Distributed under the MIT License. See `LICENSE.txt` for more information.
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
+<!-- TODO -->
+## TODO
+
+1. Quando o projeto for em grupo, achar automaticamente em qual grupo o estudante está e clonar a "main-group-xx"
+2. Caso algum projeto dê erro, siga em frente e logue no final do script.
+3. Ver quem está de recuperação ainda
+4. Criar um front ou GUI para facilitar?
 <!-- CONTACT -->
 ## Contact
 

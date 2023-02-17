@@ -27,7 +27,13 @@ async function getProjectName(declareNameForProject, userName, repository) {
     .split(' ').join('-')}-${formatedRepo}`;
 }
 
-async function getUserPr(repository, username) {
+async function checkIfIsGroupProject(arrayOfObjectPR) {
+  const isGrouProject = arrayOfObjectPR.some((PR) => {
+
+  });
+}
+
+async function getArrayOfPRs(repository) {
   const queryCurrentProjectPR = `gh api graphql --paginate -f query='
   query ($endCursor: String) {
     repository(owner: "tryber", name: "${repository}") {  
@@ -59,6 +65,12 @@ async function getUserPr(repository, username) {
     arrayOfObjectPR.push(JSON.parse(match[0]));
   }
 
+  return arrayOfObjectPR;
+}
+
+async function getUserPr(repository, username) {
+  const arrayOfObjectPR = await getArrayOfPRs(repository);
+
   const arrayOfUserPRS = arrayOfObjectPR
     .filter((PR) => {
       let isUser = false;
@@ -75,29 +87,29 @@ async function getUserPr(repository, username) {
       return isUser && isMergingInMaster;
     });
 
-  const arrayOfBranches = arrayOfUserPRS.map((PR) => PR.headRefName);
+  const arrayOfUserBranches = arrayOfUserPRS.map((PR) => PR.headRefName);
 
-  return arrayOfBranches;
+  return arrayOfUserBranches;
 }
 
-async function handlePRS(arrayOfUserBranchs) {
-  if (arrayOfUserBranchs.length > 1) {
-    const { chosenBranch } = await inquirer.prompt(handleMultiplePrsQuestion(arrayOfUserBranchs));
+async function handleBranches(arrayOfUserBranches) {
+  if (arrayOfUserBranches.length > 1) {
+    const { chosenBranch } = await inquirer.prompt(handleMultiplePrsQuestion(arrayOfUserBranches));
     return chosenBranch;
   }
-  if (arrayOfUserBranchs.length === 0) {
+  if (arrayOfUserBranches.length === 0) {
     logRedBigBold('Nenhuma branch para esse login encontrado. Você digitou certo?');
     throw new Error('No branch found');
   }
-  
-  logGreenBigBold('Branch para o projeto encontrada: ', arrayOfUserBranchs[0]);
-  return arrayOfUserBranchs[0];
+
+  logGreenBigBold('Branch para o projeto encontrada: ', arrayOfUserBranches[0]);
+  return arrayOfUserBranches[0];
 }
 
 async function getBranchFromPR(repository, username) {
   const arrayOfUserBranchs = await getUserPr(repository, username);
 
-  const branchName = handlePRS(arrayOfUserBranchs);
+  const branchName = handleBranches(arrayOfUserBranchs);
 
   return branchName;
 }
