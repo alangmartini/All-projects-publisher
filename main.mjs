@@ -11,6 +11,7 @@ import handleMultiplePrsQuestion from './src/inquirerQuestions/branchHandling/ha
 import getUserInfo from './src/userInfo.mjs';
 import { cloneRepository, deleteRepository, uploadNewReadme } from './src/manageLocalRepository.mjs';
 import asyncExec from './src/utils/asyncExec.mjs';
+import pullRequestQuery from './src/queries/pullRequestQuery.mjs';
 
 async function getProjectName(declareNameForProject, userName, repository) {
   // If user decided to declare new project right now
@@ -28,27 +29,7 @@ async function getProjectName(declareNameForProject, userName, repository) {
 }
 
 async function getArrayOfPRs(repository) {
-  const queryCurrentProjectPR = `gh api graphql --paginate -f query='
-  query ($endCursor: String) {
-    repository(owner: "tryber", name: "${repository}") {  
-      pullRequests (first: 100, after: $endCursor) {
-        edges {
-          node {
-            baseRefName
-            headRefName
-            author {
-              login
-            }
-          }
-        }
-        pageInfo {
-          hasNextPage
-          endCursor
-        }
-      }
-    }
-  }
-  '`;
+  const queryCurrentProjectPR = pullRequestQuery(repository);
 
   const graphQLQueryAnswer = await asyncExec(queryCurrentProjectPR);
   const RegexIteratorOfObjectPR = graphQLQueryAnswer.stdout
