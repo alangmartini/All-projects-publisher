@@ -27,12 +27,6 @@ async function getProjectName(declareNameForProject, userName, repository) {
     .split(' ').join('-')}-${formatedRepo}`;
 }
 
-async function checkIfIsGroupProject(arrayOfObjectPR) {
-  const isGrouProject = arrayOfObjectPR.some((PR) => {
-
-  });
-}
-
 async function getArrayOfPRs(repository) {
   const queryCurrentProjectPR = `gh api graphql --paginate -f query='
   query ($endCursor: String) {
