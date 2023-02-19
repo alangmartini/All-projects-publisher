@@ -1,7 +1,7 @@
-import { spawn } from 'child_process';
 import { logGreenBigBold,
   logRedBigBold, logYellowBigBold } from './colorfulLogs/logs.mjs';
 import asyncExec from './utils/asyncExec.mjs';
+import asyncSpawn from './utils/asyncSpawn.mjs';
 
 export async function cloneRepository(repository) {
   const { stdout } = await asyncExec('ls');
@@ -33,26 +33,7 @@ export async function uploadNewReadme(repository) {
     `sed -i '42s/project_title/"${projectName}"/' ./${repository}/README.md`,
   );
 
-  const asyncGitSpawn = async (commandArray) => new Promise((resolve, reject) => {
-    const publisherProcess = spawn(
-      'git',
-      commandArray,
-      {
-        cwd: repository,
-        stdio: 'inherit',
-      },
-    );
-
-    publisherProcess.on('exit', (code) => {
-      if (code === 0) {
-        resolve();
-      } else {
-        reject(new Error(`git exit with error ${code}`));
-      }
-    });
-  });
-
-  await asyncGitSpawn(['add', '.']);
-  await asyncGitSpawn(['commit', '-am', 'added new readme']);
-  await asyncGitSpawn(['push', 'origin', 'main']);
+  await asyncSpawn('git', ['add', '.'], `./${repository}`);
+  await asyncSpawn('git', ['commit', '-am', 'added new readme'], `./${repository}`);
+  await asyncSpawn('git', ['push', 'origin', 'main'], `./${repository}`);
 }

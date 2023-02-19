@@ -11,6 +11,9 @@ import handleMultiplePrsQuestion from './src/inquirerQuestions/branchHandling/ha
 import getUserInfo from './src/userInfo.mjs';
 import { cloneRepository, deleteRepository, uploadNewReadme } from './src/manageLocalRepository.mjs';
 import asyncExec from './src/utils/asyncExec.mjs';
+import pullRequestQuery from './src/queries/pullRequestQuery.mjs';
+import participantsQuery from './src/queries/participantsQuery.mjs';
+import { findAllUserPrsInGroupProject, getPullRequests } from './src/handleGroupProject.mjs';
 
 async function getProjectName(declareNameForProject, userName, repository) {
   // If user decided to declare new project right now
@@ -26,39 +29,30 @@ async function getProjectName(declareNameForProject, userName, repository) {
   return `${userName
     .split(' ').join('-')}-${formatedRepo}`;
 }
+function getBranchNames(arrayOfObjectPR) {
+  const allBranchesNames = arrayOfObjectPR.map(({ node }) => node.headRefName);
+  return allBranchesNames;
+}
 
-async function getUserPr(repository, username) {
-  const queryCurrentProjectPR = `gh api graphql --paginate -f query='
-  query ($endCursor: String) {
-    repository(owner: "tryber", name: "${repository}") {  
-      pullRequests (first: 100, after: $endCursor) {
-        edges {
-          node {
-            baseRefName
-            headRefName
-            author {
-              login
-            }
-          }
-        }
-        pageInfo {
-          hasNextPage
-          endCursor
-        }
-      }
-    }
-  }
-  '`;
+function decideIfIsGroupProject(arrayOfObjectPR) {
+  // This function is for soft checking if repository is for
+  // a group project.
+  // To-do: find a more foolproof way.
+  const allBranchesNames = getBranchNames(arrayOfObjectPR);
+  const thresholdForIsGroup = 0.1;
+  const amountOfMainGroups = allBranchesNames.filter((name) => (
+    name.includes('main')
+    || name.includes('group')
+    || name.includes('main-group')
+    || name.includes('master-group')
+  )).length;
 
-  const graphQLQueryAnswer = await asyncExec(queryCurrentProjectPR);
-  const RegexIteratorOfObjectPR = graphQLQueryAnswer.stdout
-    .matchAll(/(?<=\{"node":).*?(?=}[\],])/g);
+  const isGroupProject = (amountOfMainGroups / allBranchesNames.length) >= thresholdForIsGroup;
 
-  const arrayOfObjectPR = [];
-  for (const match of RegexIteratorOfObjectPR) {
-    arrayOfObjectPR.push(JSON.parse(match[0]));
-  }
+  return isGroupProject;
+}
 
+function findAllUserPrs(arrayOfObjectPR, username) {
   const arrayOfUserPRS = arrayOfObjectPR
     .filter((PR) => {
       let isUser = false;
@@ -67,37 +61,51 @@ async function getUserPr(repository, username) {
         isUser = login.includes(username);
       }
 
-      const isMergingInMaster = (
-        PR.baseRefName === 'master'
-        || PR.baseRefName === 'main'
-      );
-
-      return isUser && isMergingInMaster;
+      return isUser;
     });
 
-  const arrayOfBranches = arrayOfUserPRS.map((PR) => PR.headRefName);
-
-  return arrayOfBranches;
+  return arrayOfUserPRS;
 }
 
-async function handlePRS(arrayOfUserBranchs) {
-  if (arrayOfUserBranchs.length > 1) {
-    const { chosenBranch } = await inquirer.prompt(handleMultiplePrsQuestion(arrayOfUserBranchs));
+async function getUserPr(repository, username) {
+  const arrayOfObjectPR = await getPullRequests(repository);
+
+  const isGroupProject = decideIfIsGroupProject(arrayOfObjectPR);
+
+  let arrayOfUserPRS = findAllUserPrsInGroupProject(arrayOfObjectPR, username);
+
+  // if (isGroupProject) {
+  //   arrayOfUserPRS = findAllUserPrsInGroupProject(arrayOfObjectPR, username);
+  // } else {
+  //   arrayOfUserPRS = findAllUserPrs(arrayOfObjectPR, username);
+  // }
+
+  const arrayOfUserBranches = arrayOfUserPRS.map((PR) => PR.node.headRefName);
+
+  return arrayOfUserBranches;
+}
+
+// // await getUserPr('sd-026-b-project-trybewallet', 'alangmartini')
+// await getUserPr('sd-026-b-project-recipes-app', 'alangmartini');
+
+async function handleBranches(arrayOfUserBranches) {
+  if (arrayOfUserBranches.length > 1) {
+    const { chosenBranch } = await inquirer.prompt(handleMultiplePrsQuestion(arrayOfUserBranches));
     return chosenBranch;
   }
-  if (arrayOfUserBranchs.length === 0) {
+  if (arrayOfUserBranches.length === 0) {
     logRedBigBold('Nenhuma branch para esse login encontrado. Você digitou certo?');
     throw new Error('No branch found');
   }
-  
-  logGreenBigBold('Branch para o projeto encontrada: ', arrayOfUserBranchs[0]);
-  return arrayOfUserBranchs[0];
+
+  logGreenBigBold('Branch para o projeto encontrada: ', arrayOfUserBranches[0]);
+  return arrayOfUserBranches[0];
 }
 
 async function getBranchFromPR(repository, username) {
   const arrayOfUserBranchs = await getUserPr(repository, username);
 
-  const branchName = handlePRS(arrayOfUserBranchs);
+  const branchName = handleBranches(arrayOfUserBranchs);
 
   return branchName;
 }
