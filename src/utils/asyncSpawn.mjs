@@ -16,7 +16,7 @@ const asyncSpawn = async (
 
   processInfo.on('exit', (code) => {
     if (code === 0) {
-      resolve(result);
+      resolve();
     } else {
       reject(new Error(`Process exit with error ${code}`));
     }

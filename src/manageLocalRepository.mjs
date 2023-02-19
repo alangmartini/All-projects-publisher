@@ -33,7 +33,7 @@ export async function uploadNewReadme(repository) {
     `sed -i '42s/project_title/"${projectName}"/' ./${repository}/README.md`,
   );
 
-  await asyncSpawn('git', ['add', '.'], repository);
-  await asyncSpawn('git', ['commit', '-am', 'added new readme'], repository);
-  await asyncSpawn('git', ['push', 'origin', 'main'], repository);
+  await asyncSpawn('git', ['add', '.'], `./${repository}`);
+  await asyncSpawn('git', ['commit', '-am', 'added new readme'], `./${repository}`);
+  await asyncSpawn('git', ['push', 'origin', 'main'], `./${repository}`);
 }

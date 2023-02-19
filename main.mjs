@@ -12,6 +12,8 @@ import getUserInfo from './src/userInfo.mjs';
 import { cloneRepository, deleteRepository, uploadNewReadme } from './src/manageLocalRepository.mjs';
 import asyncExec from './src/utils/asyncExec.mjs';
 import pullRequestQuery from './src/queries/pullRequestQuery.mjs';
+import participantsQuery from './src/queries/participantsQuery.mjs';
+import { findAllUserPrsInGroupProject, getPullRequests } from './src/handleGroupProject.mjs';
 
 async function getProjectName(declareNameForProject, userName, repository) {
   // If user decided to declare new project right now
@@ -27,25 +29,30 @@ async function getProjectName(declareNameForProject, userName, repository) {
   return `${userName
     .split(' ').join('-')}-${formatedRepo}`;
 }
-
-async function getArrayOfPRs(repository) {
-  const queryCurrentProjectPR = pullRequestQuery(repository);
-
-  const graphQLQueryAnswer = await asyncExec(queryCurrentProjectPR);
-  const RegexIteratorOfObjectPR = graphQLQueryAnswer.stdout
-    .matchAll(/(?<=\{"node":).*?(?=}[\],])/g);
-
-  const arrayOfObjectPR = [];
-  for (const match of RegexIteratorOfObjectPR) {
-    arrayOfObjectPR.push(JSON.parse(match[0]));
-  }
-
-  return arrayOfObjectPR;
+function getBranchNames(arrayOfObjectPR) {
+  const allBranchesNames = arrayOfObjectPR.map(({ node }) => node.headRefName);
+  return allBranchesNames;
 }
 
-async function getUserPr(repository, username) {
-  const arrayOfObjectPR = await getArrayOfPRs(repository);
+function decideIfIsGroupProject(arrayOfObjectPR) {
+  // This function is for soft checking if repository is for
+  // a group project.
+  // To-do: find a more foolproof way.
+  const allBranchesNames = getBranchNames(arrayOfObjectPR);
+  const thresholdForIsGroup = 0.1;
+  const amountOfMainGroups = allBranchesNames.filter((name) => (
+    name.includes('main')
+    || name.includes('group')
+    || name.includes('main-group')
+    || name.includes('master-group')
+  )).length;
 
+  const isGroupProject = (amountOfMainGroups / allBranchesNames.length) >= thresholdForIsGroup;
+
+  return isGroupProject;
+}
+
+function findAllUserPrs(arrayOfObjectPR, username) {
   const arrayOfUserPRS = arrayOfObjectPR
     .filter((PR) => {
       let isUser = false;
@@ -54,18 +61,32 @@ async function getUserPr(repository, username) {
         isUser = login.includes(username);
       }
 
-      const isMergingInMaster = (
-        PR.baseRefName === 'master'
-        || PR.baseRefName === 'main'
-      );
-
-      return isUser && isMergingInMaster;
+      return isUser;
     });
 
-  const arrayOfUserBranches = arrayOfUserPRS.map((PR) => PR.headRefName);
+  return arrayOfUserPRS;
+}
+
+async function getUserPr(repository, username) {
+  const arrayOfObjectPR = await getPullRequests(repository);
+
+  const isGroupProject = decideIfIsGroupProject(arrayOfObjectPR);
+
+  let arrayOfUserPRS = findAllUserPrsInGroupProject(arrayOfObjectPR, username);
+
+  // if (isGroupProject) {
+  //   arrayOfUserPRS = findAllUserPrsInGroupProject(arrayOfObjectPR, username);
+  // } else {
+  //   arrayOfUserPRS = findAllUserPrs(arrayOfObjectPR, username);
+  // }
+
+  const arrayOfUserBranches = arrayOfUserPRS.map((PR) => PR.node.headRefName);
 
   return arrayOfUserBranches;
 }
+
+// // await getUserPr('sd-026-b-project-trybewallet', 'alangmartini')
+// await getUserPr('sd-026-b-project-recipes-app', 'alangmartini');
 
 async function handleBranches(arrayOfUserBranches) {
   if (arrayOfUserBranches.length > 1) {
