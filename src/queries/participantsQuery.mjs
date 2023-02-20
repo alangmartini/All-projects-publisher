@@ -5,10 +5,13 @@ const handleQuery = (repository, isMergingToMain) => {
     repository(owner: "tryber", name: "${repository}") {
       pullRequests(first: 100, after: $endCursor, baseRefName: "${mainOrMaster}") {
         totalCount
-      
         edges {
           node {
+            baseRefName
             headRefName
+            author {
+              login
+            }
             participants (first: 100) {
               nodes {
                 login

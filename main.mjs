@@ -29,6 +29,7 @@ async function getProjectName(declareNameForProject, userName, repository) {
   return `${userName
     .split(' ').join('-')}-${formatedRepo}`;
 }
+
 function getBranchNames(arrayOfObjectPR) {
   const allBranchesNames = arrayOfObjectPR.map(({ node }) => node.headRefName);
   return allBranchesNames;
@@ -52,12 +53,12 @@ function decideIfIsGroupProject(arrayOfObjectPR) {
   return isGroupProject;
 }
 
-function findAllUserPrs(arrayOfObjectPR, username) {
+function findAllUserPrsNonGroup(arrayOfObjectPR, username) {
   const arrayOfUserPRS = arrayOfObjectPR
     .filter((PR) => {
       let isUser = false;
-      if (PR.author) {
-        const { author: { login } } = PR;
+      if (PR.node.author) {
+        const { node: { author: { login } } } = PR;
         isUser = login.includes(username);
       }
 
@@ -72,41 +73,43 @@ async function getUserPr(repository, username) {
 
   const isGroupProject = decideIfIsGroupProject(arrayOfObjectPR);
 
-  let arrayOfUserPRS = findAllUserPrsInGroupProject(arrayOfObjectPR, username);
+  let arrayOfUserPRS;
+  if (isGroupProject) {
+    arrayOfUserPRS = findAllUserPrsInGroupProject(arrayOfObjectPR, username);
+  } else {
+    arrayOfUserPRS = findAllUserPrsNonGroup(arrayOfObjectPR, username);
+  }
 
-  // if (isGroupProject) {
-  //   arrayOfUserPRS = findAllUserPrsInGroupProject(arrayOfObjectPR, username);
-  // } else {
-  //   arrayOfUserPRS = findAllUserPrs(arrayOfObjectPR, username);
-  // }
-
-  const arrayOfUserBranches = arrayOfUserPRS.map((PR) => PR.node.headRefName);
+  const arrayOfUserBranches = getBranchNames(arrayOfUserPRS);
 
   return arrayOfUserBranches;
 }
-
-// // await getUserPr('sd-026-b-project-trybewallet', 'alangmartini')
-// await getUserPr('sd-026-b-project-recipes-app', 'alangmartini');
 
 async function handleBranches(arrayOfUserBranches) {
   if (arrayOfUserBranches.length > 1) {
     const { chosenBranch } = await inquirer.prompt(handleMultiplePrsQuestion(arrayOfUserBranches));
     return chosenBranch;
   }
+
   if (arrayOfUserBranches.length === 0) {
     logRedBigBold('Nenhuma branch para esse login encontrado. Você digitou certo?');
     throw new Error('No branch found');
   }
 
-  logGreenBigBold('Branch para o projeto encontrada: ', arrayOfUserBranches[0]);
   return arrayOfUserBranches[0];
 }
 
 async function getBranchFromPR(repository, username) {
   const arrayOfUserBranchs = await getUserPr(repository, username);
 
-  const branchName = handleBranches(arrayOfUserBranchs);
+  let branchName = await handleBranches(arrayOfUserBranchs);
 
+  const matchGroupBranch = branchName.match(/main-group-\d+/);
+  if (matchGroupBranch) {
+    [branchName] = matchGroupBranch;
+  }
+
+  logGreenBigBold(`Branch para o projeto encontrada: ${branchName}`);
   return branchName;
 }
 
@@ -149,6 +152,8 @@ async function run(
   // const branchForCurrentRepository = await getBranchName(hasStandartBranch, repository);
 
   const projectName = await getProjectName(declareNameForProject, username, repository);
+
+  logGreenBigBold(`Começando a publicação do projeto: ${repository}`);
 
   logGreenBigBold('Beleza! Agora começara o processo de clonar o projeto,'
   + ' achar sua branch e renomear o projeto (caso tenha decidido)'
