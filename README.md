@@ -67,8 +67,7 @@
       Lê quais projetos estão disponíveis no GitHub da sua turma
       e te permite selecionar quais você gostaria de publicar no seu Github pessoal.
       Utiliza o já existente Trybe Publisher disponível para alunos da Trybe.
-      
-            
+      </br>
       PS: Você precisa ter aberto pelo menos um PR no decorrer do projeto, no caso de projetos em grupo.
     <h5 align="left">ENG:</h5>
         Project made for students at Trybe to easily publish project made while doing the course.
