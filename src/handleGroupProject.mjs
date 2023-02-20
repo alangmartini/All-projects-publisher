@@ -104,6 +104,8 @@ export async function getPullRequests(repository) {
     .map((JSON) => JSON.data.repository.pullRequests.edges)
     .reduce((acc, JSON) => [...acc, ...JSON], []);
 
+  // console.log('PRS are:', arrayOfPullRequests);
+  console.log('PRS length are:', arrayOfPullRequests.length);
   return arrayOfPullRequests;
 }
 
