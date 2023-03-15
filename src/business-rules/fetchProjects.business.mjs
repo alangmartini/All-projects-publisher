@@ -1,24 +1,14 @@
-import asyncExec from './asyncExec.mjs';
+import dataAcess from '../data-acess';
 
-/* eslint-disable no-restricted-syntax */
-const query = `gh api graphql --paginate -f query='
-query($endCursor: String) { 
-  organization(login: "tryber") { 
-    repositories(first: 100, after: $endCursor) {
-      nodes { name }
-      pageInfo {
-        hasNextPage
-        endCursor
-      }
-    }
-  }
-}
-'`;
+async function fetchProjectsLeg(triboAtual) {
+  logYellowBigBold(
+    'Pegando todos os projetos da sua turma atualmente disponíveis no GitHub',
+  );
 
-async function fetchProjects(triboAtual) {
   let repositories;
   try {
-    const { stdout, stderr } = await asyncExec(query);
+    const { stdout, stderr } = dataAcess.fetchProjects();
+
     const reg = new RegExp(`sd-0${triboAtual}-[ab].*?(?="},)`, 'g');
     const matchIterator = stdout.matchAll(reg);
 

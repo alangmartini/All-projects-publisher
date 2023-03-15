@@ -1,69 +1,84 @@
-/* eslint-disable no-await-in-loop */
-/* eslint-disable no-restricted-syntax */
-/* eslint-disable max-len */
-import { spawn } from 'child_process';
 import inquirer from 'inquirer';
-import { logGreenBigBold, logRedBigBold, logYellowBigBold } from './src/colorfulLogs/logs.mjs';
+import asyncExec from './src/utils/asyncExec.mjs';
+
+import {
+  logGreenBigBold,
+  logRedBigBold,
+  logYellowBigBold,
+} from './src/presentation/colorfulLogs/logs.mjs';
 
 // Question imports
-import questionRepositoryNameFromInput from './src/inquirerQuestions/projectNameHandling/projectNameForRepo.mjs';
-import handleMultiplePrsQuestion from './src/inquirerQuestions/branchHandling/handleMultiplePrsQuestion.mjs';
-import getUserInfo from './src/userInfo.mjs';
-import { cloneRepository, deleteRepository, uploadNewReadme } from './src/manageLocalRepository.mjs';
-import asyncExec from './src/utils/asyncExec.mjs';
-import pullRequestQuery from './src/queries/pullRequestQuery.mjs';
-import participantsQuery from './src/queries/participantsQuery.mjs';
-import { findAllUserPrsInGroupProject, getPullRequests } from './src/handleGroupProject.mjs';
+import questionRepositoryNameFromInput 
+  from './src/presentation/inquirerQuestions/projectNameHandling/projectNameForRepo.mjs';
+import handleMultiplePrsQuestion
+  from './src/presentation/inquirerQuestions/branchHandling/handleMultiplePrsQuestion.mjs';
+
+import getUserInfo from './src/presentation/userInfo.mjs';
+
+import {
+  cloneRepository,
+  deleteRepository,
+  uploadNewReadme,
+} from './src/manageLocalRepository.mjs';
+
+import participantsQuery from './src/data-acess/queries/participantsQuery.mjs';
+import {
+  decideIfIsGroupProject,
+  findAllUserPrsInGroupProject,
+} from './src/handleGroupProject.mjs';
+import { getBranchNames } from './src/data-acess/getBranchName.mjs';
+import getPullRequests from './src/data-acess/getPullRequests.mjs';
+import getProjectsToUpload from './src/presentation/getProjectsToUpload.mjs';
+import promptUserInfo from './src/presentation/userInfo.mjs';
+import fetchProjects from './src/data-acess/fetchProject.data.mjs';
 
 async function getProjectName(declareNameForProject, userName, repository) {
   // If user decided to declare new project right now
   if (declareNameForProject === 'Agora') {
     // Get new repository name
-    const { repoName } = await inquirer
-      .prompt(questionRepositoryNameFromInput(repository));
+    const { repoName } = await inquirer.prompt(
+      questionRepositoryNameFromInput(repository),
+    );
     const formatedRepoName = repoName.split(' ').join('-');
     return formatedRepoName;
   }
   const formatedRepo = repository.split('project');
 
-  return `${userName
-    .split(' ').join('-')}-${formatedRepo}`;
+  return `${userName.split(' ').join('-')}-${formatedRepo}`;
 }
 
-function getBranchNames(arrayOfObjectPR) {
-  const allBranchesNames = arrayOfObjectPR.map(({ node }) => node.headRefName);
-  return allBranchesNames;
-}
+const handleJSONsString = (JSONstring) => {
+  const JSONS = JSONstring.split('{"data":');
+  // Remove empty index
+  JSONS.shift();
 
-function decideIfIsGroupProject(arrayOfObjectPR) {
-  // This function is for soft checking if repository is for
-  // a group project.
-  // To-do: find a more foolproof way.
-  const allBranchesNames = getBranchNames(arrayOfObjectPR);
-  const thresholdForIsGroup = 0.1;
-  const amountOfMainGroups = allBranchesNames.filter((name) => (
-    name.includes('main')
-    || name.includes('group')
-    || name.includes('main-group')
-    || name.includes('master-group')
-  )).length;
+  return JSONS.map((string) => `{"data":${string}`).map((string) => JSON.parse(string));
+};
 
-  const isGroupProject = (amountOfMainGroups / allBranchesNames.length) >= thresholdForIsGroup;
+async function tryQuery(repository, tryMergingToMain) {
+  const commitsFromBranchString = await asyncExec(
+    participantsQuery(repository, tryMergingToMain),
+  );
 
-  return isGroupProject;
+  const separateJSONS = handleJSONsString(commitsFromBranchString.stdout);
+
+  return separateJSONS;
 }
 
 function findAllUserPrsNonGroup(arrayOfObjectPR, username) {
-  const arrayOfUserPRS = arrayOfObjectPR
-    .filter((PR) => {
-      let isUser = false;
-      if (PR.node.author) {
-        const { node: { author: { login } } } = PR;
-        isUser = login.includes(username);
-      }
+  const arrayOfUserPRS = arrayOfObjectPR.filter((PR) => {
+    let isUser = false;
+    if (PR.node.author) {
+      const {
+        node: {
+          author: { login },
+        },
+      } = PR;
+      isUser = login.includes(username);
+    }
 
-      return isUser;
-    });
+    return isUser;
+  });
 
   return arrayOfUserPRS;
 }
@@ -87,12 +102,16 @@ async function getUserPr(repository, username) {
 
 async function handleBranches(arrayOfUserBranches) {
   if (arrayOfUserBranches.length > 1) {
-    const { chosenBranch } = await inquirer.prompt(handleMultiplePrsQuestion(arrayOfUserBranches));
+    const { chosenBranch } = await inquirer.prompt(
+      handleMultiplePrsQuestion(arrayOfUserBranches),
+    );
     return chosenBranch;
   }
 
   if (arrayOfUserBranches.length === 0) {
-    logRedBigBold('Nenhuma branch para esse login encontrado. Você digitou certo?');
+    logRedBigBold(
+      'Nenhuma branch para esse login encontrado. Você digitou certo?',
+    );
     throw new Error('No branch found');
   }
 
@@ -113,29 +132,20 @@ async function getBranchFromPR(repository, username) {
   return branchName;
 }
 
-async function runTrybePublisher(branchForCurrentRepository, projectName, repository) {
-  const asyncSpawn = async () => new Promise((resolve, reject) => {
-    const publisherProcess = spawn(
+async function runTrybePublisher(
+  branchForCurrentRepository,
+  projectName,
+  repository,
+) {
+  try {
+    await asyncSpawn(
       'trybe-publisher',
       ['-b', `${branchForCurrentRepository}`, '-p', `${projectName}`],
-      {
-        cwd: repository,
-        stdio: 'inherit',
-      },
+      repository,
     );
-
-    publisherProcess.on('exit', (code) => {
-      if (code === 0) {
-        resolve();
-      } else {
-        reject(new Error(`trybe publisher exit with error ${code}`));
-      }
-    });
-  });
-
-  try {
-    await asyncSpawn();
-    logGreenBigBold(`Finalizado a publicação de ${repository} como ${projectName}`);
+    logGreenBigBold(
+      `Finalizado a publicação de ${repository} como ${projectName}`,
+    );
   } catch (error) {
     logRedBigBold('Aconteceu algum erro! ');
     console.log(error.stdout);
@@ -143,21 +153,20 @@ async function runTrybePublisher(branchForCurrentRepository, projectName, reposi
   }
 }
 
-async function run(
-  repository,
-  hasStandartBranch,
-  declareNameForProject,
-  username,
-) {
-  // const branchForCurrentRepository = await getBranchName(hasStandartBranch, repository);
-
-  const projectName = await getProjectName(declareNameForProject, username, repository);
+async function run(repository, declareNameForProject, username) {
+  const projectName = await getProjectName(
+    declareNameForProject,
+    username,
+    repository,
+  );
 
   logGreenBigBold(`Começando a publicação do projeto: ${repository}`);
 
-  logGreenBigBold('Beleza! Agora começara o processo de clonar o projeto,'
-  + ' achar sua branch e renomear o projeto (caso tenha decidido)'
-  + ' para subi-lo em seu Github');
+  logGreenBigBold(
+    'Beleza! Agora começara o processo de clonar o projeto,'
+      + ' achar sua branch e renomear o projeto (caso tenha decidido)'
+      + ' para subi-lo em seu Github',
+  );
 
   const branchName = await getBranchFromPR(repository, username);
 
@@ -166,14 +175,18 @@ async function run(
 
 async function main() {
   // Get necessary info for running the script
-  const userInfo = await getUserInfo();
-  const { username, useDefaultNameForProjects, projectsToUpload,
-    standartBranchName } = userInfo;
+  const userInfo = await promptUserInfo();
+
+  const projectsFromCurrentTrybe = await fetchProjects(userInfo.currentTrybe);
+
+  const projectsToUpload = await promptProjectsToUpload(projectsFromCurrentTrybe);
+
+  const { username, useDefaultNameForProjects } = userInfo;
 
   // Run the script for each project
   for (const project of projectsToUpload) {
     await cloneRepository(project);
-    await run(project, standartBranchName, useDefaultNameForProjects, username);
+    await run(project, useDefaultNameForProjects, username);
     await uploadNewReadme(project);
     await deleteRepository(project);
   }
