@@ -1,5 +1,7 @@
-import dataAcess from '../data-acess';
+import dataAcess from '../data-acess/index.mjs';
+import { logYellowBigBold } from '../presentation/colorfulLogs/logs.mjs';
 
+// Legacy fetch projects uses Regex. Not very reliable
 async function fetchProjectsLeg(triboAtual) {
   logYellowBigBold(
     'Pegando todos os projetos da sua turma atualmente disponíveis no GitHub',
@@ -28,5 +30,61 @@ async function fetchProjectsLeg(triboAtual) {
 
   return repositories;
 }
+
+const extractProjectsNamesFromJSON = (triboAtual, JSONSArray) => {
+  const repositoriesArray = JSONSArray.reduce((acc, JSON) => {
+    const projectsObjs = JSON.data.organization.repositories.nodes;
+
+    projectsObjs.forEach(({ name }) => {
+      const turmaRegex = new RegExp(`sd-0${triboAtual}`);
+
+      if (turmaRegex.test(name)) {
+        acc.push(name);
+      }
+    });
+
+    return acc;
+  }, []);
+
+  return repositoriesArray;
+};
+
+async function fetchProjects(triboAtual) {
+  logYellowBigBold(
+    'Pegando todos os projetos da sua turma atualmente disponíveis no GitHub',
+  );
+
+  const possibleGraphQLStringWithProjects = await dataAcess.fetchProjects();
+
+  if (possibleGraphQLStringWithProjects.type) {
+    const error = possibleGraphQLStringWithProjects;
+    return error;
+  }
+
+  const graphQLConcatenatedJSONS = possibleGraphQLStringWithProjects;
+
+  let JSONSArray = graphQLConcatenatedJSONS.split('}}}}}');
+
+  // For some reason split will create an empty index at the end
+  const lastIndex = JSONSArray.length - 1;
+  if (!JSONSArray[lastIndex]) {
+    JSONSArray.pop();
+  }
+
+  try {
+    JSONSArray = JSONSArray
+      .map((json) => `${json}}}}}}`)
+      .map((json) => JSON.parse(json));
+  } catch (error) {
+    return { type: 'FAILED_TO_PARSE', message: 'Failed to parse JSON of projects' };
+  }
+
+  const repositoriesArr = extractProjectsNamesFromJSON(triboAtual, JSONSArray);
+
+  return repositoriesArr;
+}
+
+const test = await fetchProjects(26);
+console.log(test);
 
 export default fetchProjects;

@@ -20,4 +20,4 @@ async function getPullRequests(repository) {
   return arrayOfPullRequests;
 }
 
-export default getPullRequests(repository);
+export default getPullRequests;
