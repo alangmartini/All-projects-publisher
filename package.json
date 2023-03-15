@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "main": "main.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "mocha tests/**/*$NAME*.test.*js --exit"
   },
   "author": "",
   "license": "ISC",
@@ -12,9 +12,15 @@
     "bluebird": "^3.7.2",
     "child-process": "^1.0.2",
     "cli-progress": "^3.12.0",
-    "eslint-config-trybe-frontend": "^1.7.0",
+    "eslint-config-trybe-backend": "^2.1.0",
     "graphql": "^16.6.0",
     "graphql-tag": "^2.12.6",
     "inquirer": "^9.1.4"
+  },
+  "devDependencies": {
+    "chai": "^4.3.7",
+    "mocha": "^10.2.0",
+    "rewire": "^6.0.0",
+    "sinon": "^15.0.2"
   }
 }

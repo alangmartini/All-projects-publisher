@@ -30,7 +30,7 @@ import { getBranchNames } from './src/data-acess/getBranchName.mjs';
 import getPullRequests from './src/data-acess/getPullRequests.mjs';
 import getProjectsToUpload from './src/presentation/getProjectsToUpload.mjs';
 import promptUserInfo from './src/presentation/userInfo.mjs';
-import fetchProjects from './src/data-acess/fetchProject.data.mjs';
+import fetchProjects from './src/data-acess/fetchProjects.data.mjs';
 
 async function getProjectName(declareNameForProject, userName, repository) {
   // If user decided to declare new project right now
