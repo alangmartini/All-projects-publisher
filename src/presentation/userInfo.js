@@ -1,8 +1,8 @@
 /* eslint-disable max-len */
-import inquirer from 'inquirer';
-import useDefaultNameForProjectsQuestion from './inquirerQuestions/projectNameHandling/useDefaultName.mjs';
-import usernameQuestion from './inquirerQuestions/projectNameHandling/usernameQuestion.mjs';
-import currentTrybeQuestion from './inquirerQuestions/trybeHandling/currentTrybeQuestion.mjs';
+const inquirer = require('inquirer');
+const useDefaultNameForProjectsQuestion = require('./inquirerQuestions/projectNameHandling/useDefaultName.mjs');
+const usernameQuestion = require('./inquirerQuestions/projectNameHandling/usernameQuestion.mjs');
+const currentTrybeQuestion = require('./inquirerQuestions/trybeHandling/currentTrybeQuestion.mjs');
 
 async function promptUsername() {
   const { usernameAnswer } = await inquirer.prompt(usernameQuestion);

@@ -1,6 +1,8 @@
-import { promisify } from 'util';
-import { exec } from 'child_process';
+const { promisify } = require('util');
+const { exec } = require('child_process');
 
-export const asyncExec = promisify(exec);
+const asyncExec = promisify(exec);
 
-export default { };
+module.exports = {
+  asyncExec,
+};

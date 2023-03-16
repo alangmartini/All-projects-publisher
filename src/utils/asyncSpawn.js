@@ -1,4 +1,4 @@
-import { spawn } from 'child_process';
+const { spawn } = require('child_process');
 
 const asyncSpawn = async (
   mainCommand,
@@ -23,4 +23,6 @@ const asyncSpawn = async (
   });
 });
 
-export default asyncSpawn;
+module.exports = {
+  asyncSpawn,
+};

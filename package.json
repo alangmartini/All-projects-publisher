@@ -15,7 +15,8 @@
     "eslint-config-trybe-backend": "^2.1.0",
     "graphql": "^16.6.0",
     "graphql-tag": "^2.12.6",
-    "inquirer": "^9.1.4"
+    "inquirer": "^9.1.4",
+    "sinon-chai": "^3.7.0"
   },
   "devDependencies": {
     "chai": "^4.3.7",

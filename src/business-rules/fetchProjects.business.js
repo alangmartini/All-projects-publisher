@@ -1,6 +1,22 @@
-import dataAcess from '../data-acess/index.mjs';
-import errorsObject from '../errors/object.errors.mjs';
-import { logYellowBigBold } from '../presentation/colorfulLogs/logs.mjs';
+const dataAcess = require('../data-acess/index.js');
+const errorsObject = require('../errors/object.errors.js');
+const { logYellowBigBold } = require('../presentation/colorfulLogs/logs.js');
+
+const parseJSONStringArr = (JSONSArray) => {
+  try {
+    const parsedArray = JSONSArray
+      .map((json) => `${json}}}}}}`)
+      .map((json) => JSON.parse(json));
+
+    return parsedArray;
+  } catch (error) {
+    return {
+      type: 'FAILED_TO_PARSE',
+      message: errorsObject.FAILED_TO_PARSE,
+      error,
+    };
+  }
+};
 
 const extractProjectsNamesFromJSON = (triboAtual, JSONSArray) => {
   const repositoriesArray = JSONSArray.reduce((acc, JSON) => {
@@ -34,7 +50,7 @@ async function fetchProjects(triboAtual) {
 
   const graphQLConcatenatedJSONS = possibleGraphQLStringWithProjects;
 
-  let JSONSArray = graphQLConcatenatedJSONS.split('}}}}}');
+  const JSONSArray = graphQLConcatenatedJSONS.split('}}}}}');
 
   // For some reason split will create an empty index at the end
   const lastIndex = JSONSArray.length - 1;
@@ -42,22 +58,18 @@ async function fetchProjects(triboAtual) {
     JSONSArray.pop();
   }
 
-  try {
-    JSONSArray = JSONSArray
-      .map((json) => `${json}}}}}}`)
-      .map((json) => JSON.parse(json));
-  } catch (error) {
-    return {
-      type: 'FAILED_TO_PARSE',
-      message: errorsObject.FAILED_TO_PARSE };
-  }
+  const parsedJSONSArray = parseJSONStringArr(JSONSArray);
 
-  const repositoriesArr = extractProjectsNamesFromJSON(triboAtual, JSONSArray);
+  const projectNamesArray = extractProjectsNamesFromJSON(triboAtual, parsedJSONSArray);
 
-  return repositoriesArr;
+  return projectNamesArray;
 }
 
-export default fetchProjects;
+(async () => { await fetchProjects(26); })();
+
+module.exports = {
+  fetchProjects,
+};
 
 // Legacy fetch projects uses Regex. Not very reliable
 // async function fetchProjectsLeg(triboAtual) {

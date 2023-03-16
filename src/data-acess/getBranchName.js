@@ -1,4 +1,8 @@
-export default function getBranchNames(arrayOfObjectPR) {
+function getBranchNames(arrayOfObjectPR) {
   const allBranchesNames = arrayOfObjectPR.map(({ node }) => node.headRefName);
   return allBranchesNames;
 }
+
+module.exports = {
+  getBranchNames,
+};

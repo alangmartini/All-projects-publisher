@@ -1,3 +1,4 @@
+/* eslint-disable max-lines-per-function */
 const pullRequestQuery = (repository) => `gh api graphql --paginate -f query='
   query ($endCursor: String) {
     repository(owner: "tryber", name: "${repository}") {  
@@ -20,4 +21,4 @@ const pullRequestQuery = (repository) => `gh api graphql --paginate -f query='
   }
   '`;
 
-export default pullRequestQuery;
+module.exports = pullRequestQuery;

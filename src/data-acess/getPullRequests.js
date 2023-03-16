@@ -1,3 +1,24 @@
+const participantsQuery = require('./queries/participantsQuery');
+const { asyncExec } = require('../utils/asyncExec');
+
+const handleJSONsString = (JSONstring) => {
+  const JSONS = JSONstring.split('{"data":');
+  // Remove empty index
+  JSONS.shift();
+
+  return JSONS.map((string) => `{"data":${string}`).map((string) => JSON.parse(string));
+};
+
+async function tryQuery(repository, tryMergingToMain) {
+  const commitsFromBranchString = await asyncExec(
+    participantsQuery(repository, tryMergingToMain),
+  );
+
+  const separateJSONS = handleJSONsString(commitsFromBranchString.stdout);
+
+  return separateJSONS;
+}
+
 async function getPullRequests(repository) {
   // Tries a query that search all PR heading to master
   // Then if none is found, try all heading to main
@@ -20,4 +41,6 @@ async function getPullRequests(repository) {
   return arrayOfPullRequests;
 }
 
-export default getPullRequests;
+module.exports = {
+  getPullRequests,
+};

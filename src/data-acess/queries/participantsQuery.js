@@ -1,3 +1,4 @@
+/* eslint-disable max-lines-per-function */
 const handleQuery = (repository, isMergingToMain) => {
   const mainOrMaster = isMergingToMain ? 'main' : 'master';
   return `
@@ -33,4 +34,4 @@ const handleQuery = (repository, isMergingToMain) => {
 const participantsQuery = (repository, isMergingToMain) => 'gh api graphql --paginate'
   + ` -f query='${handleQuery(repository, isMergingToMain)}'`;
 
-export default participantsQuery;
+module.exports = participantsQuery;

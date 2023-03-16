@@ -21,7 +21,6 @@ import {
   uploadNewReadme,
 } from './src/manageLocalRepository.mjs';
 
-import participantsQuery from './src/data-acess/queries/participantsQuery.mjs';
 import {
   decideIfIsGroupProject,
   findAllUserPrsInGroupProject,
@@ -47,23 +46,6 @@ async function getProjectName(declareNameForProject, userName, repository) {
   return `${userName.split(' ').join('-')}-${formatedRepo}`;
 }
 
-const handleJSONsString = (JSONstring) => {
-  const JSONS = JSONstring.split('{"data":');
-  // Remove empty index
-  JSONS.shift();
-
-  return JSONS.map((string) => `{"data":${string}`).map((string) => JSON.parse(string));
-};
-
-async function tryQuery(repository, tryMergingToMain) {
-  const commitsFromBranchString = await asyncExec(
-    participantsQuery(repository, tryMergingToMain),
-  );
-
-  const separateJSONS = handleJSONsString(commitsFromBranchString.stdout);
-
-  return separateJSONS;
-}
 
 function findAllUserPrsNonGroup(arrayOfObjectPR, username) {
   const arrayOfUserPRS = arrayOfObjectPR.filter((PR) => {

@@ -1,11 +1,9 @@
-import getPullRequests from './getPullRequests.js';
-import getBranchNames from './getBranchName.js';
-import fetchProjects from './fetchProjects.data.js';
+const { getPullRequests } = require('./getPullRequests.js');
+const { getBranchNames } = require('./getBranchName.js');
+const { fetchProjects } = require('./fetchProjects.data.js');
 
-const dataAcess = {
+module.exports = {
   getPullRequests,
   getBranchNames,
   fetchProjects,
 };
-
-export default dataAcess;

@@ -11,4 +11,4 @@ query($endCursor: String) {
   }
 }
 '`;
-export default fetchProjectsQuery;
+module.exports = fetchProjectsQuery; 

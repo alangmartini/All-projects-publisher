@@ -1,6 +1,5 @@
-import inquirer from 'inquirer';
-import whatProjectsToUploadQuestion
-  from './inquirerQuestions/projectHandling/whatProjectsToUpload.mjs';
+const inquirer = require('inquirer');
+const whatProjectsToUploadQuestion = require('./inquirerQuestions/projectHandling/whatProjectsToUpload.mjs');
 
 async function getChoosenProject(projectsFromCurrentTrybe) {
   const { projectsToUpload } = await inquirer

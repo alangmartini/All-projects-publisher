@@ -1,7 +1,7 @@
 import { logGreenBigBold,
   logRedBigBold, logYellowBigBold } from './colorfulLogs/logs.mjs';
-import asyncExec from './utils/asyncExec.mjs';
-import asyncSpawn from './utils/asyncSpawn.mjs';
+const asyncExec = require('./utils/asyncExec.mjs');
+const asyncSpawn = require('./utils/asyncSpawn.mjs');
 
 export async function cloneRepository(repository) {
   const { stdout } = await asyncExec('ls');

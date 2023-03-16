@@ -1,6 +1,6 @@
 /* eslint-disable no-await-in-loop */
 /* eslint-disable react-func/max-lines-per-function */
-import getBranchNames from './data-acess/getBranchName.mjs';
+const getBranchNames = require('./data-acess/getBranchName.mjs');
 
 export function decideIfIsGroupProject(arrayOfObjectPR) {
   // This function is for soft checking if repository is for
