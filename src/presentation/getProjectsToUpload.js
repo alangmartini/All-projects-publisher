@@ -8,10 +8,12 @@ async function getChoosenProject(projectsFromCurrentTrybe) {
   return projectsToUpload;
 }
 
-async function getProjectsToUpload() {
+async function promptProjectsToUpload(projectsFromCurrentTrybe) {
   const projectsToUpload = await getChoosenProject(projectsFromCurrentTrybe);
 
   return projectsToUpload;
 }
 
-export default getProjectsToUpload;
+module.exports = {
+  promptProjectsToUpload,
+};

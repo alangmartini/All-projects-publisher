@@ -1,6 +1,6 @@
 const asyncExecWraper = require('../utils/asyncExec');
 const fetchProjectsQuery = require('./queries/fetchProjects.query');
-const errorsObject = require('../errors/object.errors');
+const { ERRORS_OBJECT, ERRORS_TYPE } = require('../errors/object.errors');
 
 async function fetchProjects() {
   try {
@@ -13,14 +13,13 @@ async function fetchProjects() {
     return stdout;
   } catch (e) {
     return {
-      type: 'BAD_REQUISITION',
-      message: errorsObject.BAD_REQUISITION,
+      type: ERRORS_TYPE.BAD_REQUISITION,
+      message: ERRORS_OBJECT.BAD_REQUISITION,
       error: e,
     };
   }
 }
 
-// Add this to the bottom of your fetchProducts.js file
 module.exports = {
   fetchProjects,
 };

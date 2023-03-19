@@ -1,46 +1,8 @@
-const dataAcess = require('../data-acess/index.js');
-const errorsObject = require('../errors/object.errors.js');
-const { logYellowBigBold } = require('../presentation/colorfulLogs/logs.js');
-
-const parseJSONStringArr = (JSONSArray) => {
-  try {
-    const parsedArray = JSONSArray
-      .map((json) => `${json}}}}}}`)
-      .map((json) => JSON.parse(json));
-
-    return parsedArray;
-  } catch (error) {
-    return {
-      type: 'FAILED_TO_PARSE',
-      message: errorsObject.FAILED_TO_PARSE,
-      error,
-    };
-  }
-};
-
-const extractProjectsNamesFromJSON = (triboAtual, JSONSArray) => {
-  const repositoriesArray = JSONSArray.reduce((acc, JSON) => {
-    const projectsObjs = JSON.data.organization.repositories.nodes;
-
-    projectsObjs.forEach(({ name }) => {
-      const turmaRegex = new RegExp(`sd-0${triboAtual}`);
-
-      if (turmaRegex.test(name)) {
-        acc.push(name);
-      }
-    });
-
-    return acc;
-  }, []);
-
-  return repositoriesArray;
-};
+const dataAcess = require('../data-acess/index');
+const { ERRORS_OBJECT, ERRORS_TYPE } = require('../errors/object.errors');
+const utils = require('./utils.fetchProjects');
 
 async function fetchProjects(triboAtual) {
-  logYellowBigBold(
-    'Pegando todos os projetos da sua turma atualmente disponíveis no GitHub',
-  );
-
   const possibleGraphQLStringWithProjects = await dataAcess.fetchProjects();
 
   if (possibleGraphQLStringWithProjects.type) {
@@ -50,17 +12,17 @@ async function fetchProjects(triboAtual) {
 
   const graphQLConcatenatedJSONS = possibleGraphQLStringWithProjects;
 
-  const JSONSArray = graphQLConcatenatedJSONS.split('}}}}}');
+  const parsedJSONSArray = utils.parseJSONStringArr(graphQLConcatenatedJSONS);
 
-  // For some reason split will create an empty index at the end
-  const lastIndex = JSONSArray.length - 1;
-  if (!JSONSArray[lastIndex]) {
-    JSONSArray.pop();
+  const projectNamesArray = utils.extractProjectsNamesFromJSON(triboAtual, parsedJSONSArray);
+
+  if (projectNamesArray.length === 0) {
+    return { 
+      type: ERRORS_TYPE.NO_PROJECT_FOUND,
+      message: ERRORS_OBJECT.NO_PROJECT_FOUND,
+      error: new Error(ERRORS_OBJECT.NO_PROJECT_FOUND),
+    };
   }
-
-  const parsedJSONSArray = parseJSONStringArr(JSONSArray);
-
-  const projectNamesArray = extractProjectsNamesFromJSON(triboAtual, parsedJSONSArray);
 
   return projectNamesArray;
 }
@@ -68,6 +30,7 @@ async function fetchProjects(triboAtual) {
 (async () => { await fetchProjects(26); })();
 
 module.exports = {
+  // Funcs exported for testing
   fetchProjects,
 };
 

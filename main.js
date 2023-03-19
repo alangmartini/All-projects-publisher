@@ -1,35 +1,31 @@
-import inquirer from 'inquirer';
-import asyncExec from './src/utils/asyncExec.mjs';
-
-import {
+const { default: inquirer } = require('inquirer');
+const asyncExec = require('./src/utils/asyncExec');
+const {
   logGreenBigBold,
   logRedBigBold,
   logYellowBigBold,
-} from './src/presentation/colorfulLogs/logs.mjs';
-
-// Question imports
-import questionRepositoryNameFromInput 
-  from './src/presentation/inquirerQuestions/projectNameHandling/projectNameForRepo.mjs';
-import handleMultiplePrsQuestion
-  from './src/presentation/inquirerQuestions/branchHandling/handleMultiplePrsQuestion.mjs';
-
-import getUserInfo from './src/presentation/userInfo.mjs';
-
-import {
+} = require('./src/presentation/colorfulLogs/logs');
+const questionRepositoryNameFromInput = require(
+  './src/presentation/inquirerQuestions/projectNameHandling/projectNameForRepo'
+  );
+const handleMultiplePrsQuestion = require(
+  './src/presentation/inquirerQuestions/branchHandling/handleMultiplePrsQuestion'
+);
+const {
   cloneRepository,
   deleteRepository,
   uploadNewReadme,
-} from './src/manageLocalRepository.mjs';
-
-import {
+} = require('./src/manageLocalRepository');
+const {
   decideIfIsGroupProject,
   findAllUserPrsInGroupProject,
-} from './src/handleGroupProject.mjs';
-import { getBranchNames } from './src/data-acess/getBranchName.mjs';
-import getPullRequests from './src/data-acess/getPullRequests.mjs';
-import getProjectsToUpload from './src/presentation/getProjectsToUpload.mjs';
-import promptUserInfo from './src/presentation/userInfo.mjs';
-import fetchProjects from './src/data-acess/fetchProjects.data.mjs';
+} = require('./src/handleGroupProject');
+const { getBranchNames } = require('./src/data-acess/getBranchName');
+const getPullRequests = require('./src/data-acess/getPullRequests');
+const getProjectsToUpload = require('./src/presentation/getProjectsToUpload');
+const promptUserInfo = require('./src/presentation/userInfo');
+const fetchProjects = require('./src/data-acess/fetchProjects.data');
+const { promptProjectsToUpload } = require('./src/presentation/getProjectsToUpload');
 
 async function getProjectName(declareNameForProject, userName, repository) {
   // If user decided to declare new project right now
@@ -45,7 +41,6 @@ async function getProjectName(declareNameForProject, userName, repository) {
 
   return `${userName.split(' ').join('-')}-${formatedRepo}`;
 }
-
 
 function findAllUserPrsNonGroup(arrayOfObjectPR, username) {
   const arrayOfUserPRS = arrayOfObjectPR.filter((PR) => {
@@ -159,7 +154,10 @@ async function main() {
   // Get necessary info for running the script
   const userInfo = await promptUserInfo();
 
-  const projectsFromCurrentTrybe = await fetchProjects(userInfo.currentTrybe);
+  logYellowBigBold(
+    'Pegando todos os projetos da sua turma atualmente disponíveis no GitHub',
+  );
+  const projectsFromCurrentTrybe = await fetchProjects(userInfo.currentTrybe); // tested
 
   const projectsToUpload = await promptProjectsToUpload(projectsFromCurrentTrybe);
 
@@ -176,4 +174,5 @@ async function main() {
   logGreenBigBold('Finalizado! Até a próxima');
 }
 
-await main();
+(async function () { await main(); }());
+inquirer;
