@@ -5,6 +5,9 @@ const uploadNewReadme = require('./acessLocal/uploadNewReadme.access');
 const { getPullRequests } = require('./acessApi/getPullRequests');
 const { getBranchNames } = require('./acessApi/getBranchName');
 const { fetchProjects } = require('./acessApi/fetchProjects.data');
+const { writeFile } = require('./acessLocal/writeFile.acess');
+const { readFile } = require('./acessLocal/readFile.acess');
+const { deleteFile } = require('./acessLocal/deleteFile.acess');
 
 module.exports = {
   getPullRequests,
@@ -14,4 +17,7 @@ module.exports = {
   cloneGitRepo,
   removeFolder,
   uploadNewReadme,
+  writeFile,
+  readFile,
+  deleteFile,
 };
