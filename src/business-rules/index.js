@@ -3,6 +3,7 @@ const { fetchProjects } = require('./api/fetchProjects.business');
 const { removeFolder } = require('./local/removeFolder.business');
 const { validateAndUploadNewReadme } = require('./local/uploadNewReadme.business');
 const { cloneGitRepo } = require('./local/cloneGitRepo.business');
+const updateTrybePublisher = require('./local/updateTrybePublisher.business');
 
 module.exports = {
   fetchProjects,
@@ -10,4 +11,5 @@ module.exports = {
   removeFolder,
   validateAndUploadNewReadme,
   cloneGitRepo,
+  updateTrybePublisher,
 };

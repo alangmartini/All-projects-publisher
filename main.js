@@ -1,6 +1,7 @@
 /* eslint-disable max-lines-per-function */
 const inquirer = require('inquirer');
 const cliProgress = require('cli-progress');
+const path = require('path');
 const controller = require('./src/controller');
 
 const {
@@ -26,6 +27,14 @@ const { promptUserInfo } = require('./src/userInteraction/userInfo');
 const { fetchProjects } = require('./src/business-rules');
 const { promptProjectsToUpload } = require('./src/userInteraction/getProjectsToUpload');
 const { executeCommandIteractive } = require('./src/acess/acessLocal/execs/executeCommand.local');
+const { updateTrybePublisher } = require(
+  './src/controller',
+  );
+
+const trybePublisherPath = {
+  filePath: path.join('/usr/local/bin', 'trybe-publisher'),
+  backupFilePath: path.join('/usr/local/bin', 'trybe-publisher.bak'),
+};
 
 async function getProjectName(declareNameForProject, userName, repository) {
   // If user decided to declare new project right now
@@ -173,8 +182,9 @@ async function run(project, useDefaultNameForProjects, username, multiBar) {
 
 async function main() {
   // Get necessary info for running the script
-  console.log('im here');
   const userInfo = await promptUserInfo();
+
+  updateTrybePublisher.removeLines194And197(trybePublisherPath);
 
   logYellowBigBold(
     'Pegando todos os projetos da sua turma atualmente disponíveis no GitHub',
@@ -187,7 +197,7 @@ async function main() {
   const { username, useDefaultNameForProjects } = userInfo;
 
   logGreenBigBold(
-    `Beleza! Agora começara o processo de clonar os projetos,`
+    'Beleza! Agora começara o processo de clonar os projetos,'
       + ' achar sua branch em cada e renomear o projeto (caso tenha decidido)'
       + ' para subi-lo em seu Github',
   );
@@ -205,8 +215,9 @@ async function main() {
   await Promise.all(tasks);
 
   multiBar.stop();
+  updateTrybePublisher.restoreLines194And197(trybePublisherPath);
 
   logGreenBigBold('Finalizado! Até a próxima');
 }
 
-(async function teste() { await main(); })();
+(async function teste() { await main(); }());

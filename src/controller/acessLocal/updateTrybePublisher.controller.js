@@ -1,26 +1,23 @@
-const path = require('path');
-const { backupFile, processLines, restoreFile } = require(
-  '../../business-rules/local/updateTrybePublisher.business',
+const { updateTrybePublisher } = require(
+  '../../business-rules',
   );
 
-const trybePublisherPath = {
-    filePath: path.join('/usr/local/bin', 'trybe-publisher'),
-    backupFilePath: path.join('/usr/local/bin', 'trybe-publisher.bak'),
-};
-
-async function removeLines194And197() {
+async function removeLines194And197(trybePublisherPath) {
   try {
-    await backupFile(trybePublisherPath.filePath, trybePublisherPath.backupFilePath);
+    await updateTrybePublisher
+      .backupFile(trybePublisherPath.filePath, trybePublisherPath.backupFilePath);
 
-    await processLines(trybePublisherPath.filePath, 194, 197);
+    await updateTrybePublisher
+      .processLines(trybePublisherPath.filePath, 194, 197);
   } catch (error) {
     console.error(error);
   }
 }
 
-async function restoreLines194And197() {
+async function restoreLines194And197(trybePublisherPath) {
   try {
-    restoreFile(trybePublisherPath.filePath, trybePublisherPath.backupFilePath);
+    updateTrybePublisher
+      .restoreFile(trybePublisherPath.filePath, trybePublisherPath.backupFilePath);
   } catch (error) {
     console.error(error);
   }
