@@ -4,13 +4,13 @@ const { executeCommand } = require('../acessLocal/execs/executeCommand.local');
 
 async function fetchProjects() {
   try {
-    const { stdout, stderr } = await executeCommand(fetchProjectsQuery);
+    const projectsAsGraphQL = await executeCommand(fetchProjectsQuery);
     
-    if (stderr) {
-      throw new Error();
+    if (!projectsAsGraphQL) {
+      throw new Error('No projects found');
     }
 
-    return stdout;
+    return projectsAsGraphQL;
   } catch (e) {
     return {
       type: ERRORS_TYPE.BAD_REQUISITION,

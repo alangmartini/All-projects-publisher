@@ -13,9 +13,9 @@ const handleJSONsString = (JSONstring) => {
 async function tryQuery(repository, tryMergingToMain) {
   const commitsFromBranchString = await executeCommand(
     participantsQuery(repository, tryMergingToMain),
-  );
+    );
 
-  const separateJSONS = handleJSONsString(commitsFromBranchString.stdout);
+  const separateJSONS = handleJSONsString(commitsFromBranchString);
 
   return separateJSONS;
 }

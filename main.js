@@ -136,13 +136,7 @@ async function handleProjects(project, declareNameForProject, username) {
   return { branchName, projectName, project };
 }
 
-async function publishProject(project, declareNameForProject, username) {
-  logGreenBigBold(
-    `Beleza! Agora começara o processo de clonar o projeto ${project},`
-      + ' achar sua branch e renomear o projeto (caso tenha decidido)'
-      + ' para subi-lo em seu Github',
-  );
-  
+async function publishProject(project, declareNameForProject, username) {  
   const { branchName, projectName } = await handleProjects(
     project,
     declareNameForProject,
@@ -158,16 +152,19 @@ async function publishProject(project, declareNameForProject, username) {
 
 async function run(project, useDefaultNameForProjects, username, multiBar) {
   const progressBar = multiBar.create(100, 0, {
-    task: `${project.split(/[ab]/)[1]}`,
+    task: `${project.split(/-[ab]-/)[1].replace('project', '').replace('-', ' ')}`,
   });
 
-  progressBar.update(25);
+  progressBar.update(25, { step: 'Clonando repositório' });
   await controller.cloneRepository(project);
-  progressBar.update(50);
+
+  progressBar.update(50, { step: 'Publicando repositório' });
   await publishProject(project, useDefaultNameForProjects, username);
-  progressBar.update(75);
+
+  progressBar.update(75, { step: 'Atualizando README' });
   await controller.uploadNewReadme(project);
-  progressBar.update(90);
+
+  progressBar.update(90, { step: 'Deletando repositório local' });
   await controller.deleteRepository(project);
 
   progressBar.update(100);
@@ -176,9 +173,9 @@ async function run(project, useDefaultNameForProjects, username, multiBar) {
 
 async function main() {
   // Get necessary info for running the script
+  console.log('im here');
   const userInfo = await promptUserInfo();
 
-  console.log('im here');
   logYellowBigBold(
     'Pegando todos os projetos da sua turma atualmente disponíveis no GitHub',
   );
@@ -189,27 +186,27 @@ async function main() {
 
   const { username, useDefaultNameForProjects } = userInfo;
 
+  logGreenBigBold(
+    `Beleza! Agora começara o processo de clonar os projetos,`
+      + ' achar sua branch em cada e renomear o projeto (caso tenha decidido)'
+      + ' para subi-lo em seu Github',
+  );
+
   const multiBar = new cliProgress.MultiBar({
-    format: '{task} | {bar} {percentage}% | {projectName} | {value}/{total}',
+    format: '{task} | {bar} {percentage}% | {value}/{total} | {step}',
     clearOnComplete: false,
     hideCursor: true,
   });
 
   const tasks = projectsToUpload
-    .map((project) => run(project, useDefaultNameForProjects, username));
+    .map((project) => run(project, useDefaultNameForProjects, username, multiBar));
 
   // Run the script for each project
-  try {
-    await Promise.all(tasks);
+  await Promise.all(tasks);
 
-    multiBar.stop();
-  } catch (e) {
-    console.error(e);
-
-    multiBar.stop();
-  }
+  multiBar.stop();
 
   logGreenBigBold('Finalizado! Até a próxima');
 }
 
-(async function teste() { await main(); }());
+(async function teste() { await main(); })();

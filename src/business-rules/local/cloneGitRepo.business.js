@@ -14,7 +14,7 @@ const cloneGitRepo = async (repositoryName) => {
 
   const currentFolders = await acessLocal.getCurrentFolders();
 
-  if (!currentFolders.include(repositoryName)) {
+  if (!currentFolders.includes(repositoryName)) {
     return {
       type: ERRORS_TYPE.WRONG_CLONING,
       message: ERRORS_TYPE.WRONG_CLONING,

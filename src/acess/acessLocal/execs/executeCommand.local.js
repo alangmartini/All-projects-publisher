@@ -33,7 +33,10 @@ const executeCommand = async (command) => {
   
     return stdout;
   } catch (error) {
-    return error;
+    return {
+      message: 'Error on executeCommand',
+      error,
+    };
   }
 };
 

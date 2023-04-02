@@ -27,8 +27,6 @@ async function fetchProjects(triboAtual) {
   return projectNamesArray;
 }
 
-(async () => { await fetchProjects(26); })();
-
 module.exports = {
   // Funcs exported for testing
   fetchProjects,
