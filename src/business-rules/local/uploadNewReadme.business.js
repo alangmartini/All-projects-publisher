@@ -1,6 +1,5 @@
 /* eslint-disable no-throw-literal */
-const { copyNewReadme,
-  updateReadmeTitle, gitAdd, gitCommit, gitPush } = require('./uploadNewReadme.access');
+const { uploadNewReadme } = require('../../acess');
 
 const ERRORS_TYPE = {
   INVALID_REPOSITORY: 'INVALID_REPOSITORY',
@@ -18,6 +17,9 @@ async function validateAndUploadNewReadme(repository) {
       error: new Error(ERRORS_OBJECT.INVALID_REPOSITORY),
     };
   }
+
+  const { copyNewReadme,
+    updateReadmeTitle, gitAdd, gitCommit, gitPush } = uploadNewReadme;
 
   await copyNewReadme(repository);
 

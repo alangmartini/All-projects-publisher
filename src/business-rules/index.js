@@ -1,8 +1,8 @@
-const { getCurrentFolders } = require('../acessLocal/getCurrentFolder.acess');
-const { fetchProjects } = require('./acessApi/fetchProjects.business');
-const { removeFolder } = require('./acessLocal/removeFolder.business');
-const { validateAndUploadNewReadme } = require('./acessLocal/uploadNewReadme.business');
-const { cloneGitRepo } = require('./acessLocal/cloneGitRepo.business');
+const { getCurrentFolders } = require('./local/getCurrentFolders.business');
+const { fetchProjects } = require('./api/fetchProjects.business');
+const { removeFolder } = require('./local/removeFolder.business');
+const { validateAndUploadNewReadme } = require('./local/uploadNewReadme.business');
+const { cloneGitRepo } = require('./local/cloneGitRepo.business');
 
 module.exports = {
   fetchProjects,

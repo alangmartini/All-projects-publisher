@@ -1,8 +1,9 @@
 const participantsQuery = require('./queries/participantsQuery');
-const { asyncExec } = require('../acessLocal/utils/asyncExec');
+const { executeCommand } = require('../acessLocal/execs/executeCommand.local');
 
 const handleJSONsString = (JSONstring) => {
   const JSONS = JSONstring.split('{"data":');
+
   // Remove empty index
   JSONS.shift();
 
@@ -10,7 +11,7 @@ const handleJSONsString = (JSONstring) => {
 };
 
 async function tryQuery(repository, tryMergingToMain) {
-  const commitsFromBranchString = await asyncExec(
+  const commitsFromBranchString = await executeCommand(
     participantsQuery(repository, tryMergingToMain),
   );
 
