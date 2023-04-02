@@ -1,31 +1,29 @@
-const { default: inquirer } = require('inquirer');
-const asyncExec = require('./src/utils/asyncExec');
+const inquirer = require('inquirer');
+const controller = require('./src/controller');
+
 const {
   logGreenBigBold,
   logRedBigBold,
   logYellowBigBold,
-} = require('./src/presentation/colorfulLogs/logs');
-const questionRepositoryNameFromInput = require(
-  './src/presentation/inquirerQuestions/projectNameHandling/projectNameForRepo'
+} = require('./src/userInteraction/colorfulLogs/logs');
+
+const { questionRepositoryNameFromInput } = require(
+  './src/userInteraction/inquirerQuestions/projectNameHandling/projectNameForRepo'
   );
-const handleMultiplePrsQuestion = require(
-  './src/presentation/inquirerQuestions/branchHandling/handleMultiplePrsQuestion'
+const { handleMultiplePrsQuestion } = require(
+  './src/userInteraction/inquirerQuestions/branchHandling/handleMultiplePrsQuestion'
 );
-const {
-  cloneRepository,
-  deleteRepository,
-  uploadNewReadme,
-} = require('./src/manageLocalRepository');
+
 const {
   decideIfIsGroupProject,
   findAllUserPrsInGroupProject,
 } = require('./src/handleGroupProject');
-const { getBranchNames } = require('./src/data-acess/getBranchName');
-const getPullRequests = require('./src/data-acess/getPullRequests');
-const getProjectsToUpload = require('./src/presentation/getProjectsToUpload');
-const promptUserInfo = require('./src/presentation/userInfo');
-const fetchProjects = require('./src/data-acess/fetchProjects.data');
-const { promptProjectsToUpload } = require('./src/presentation/getProjectsToUpload');
+const { getBranchNames } = require('./src/acessApi/getBranchName');
+const { getPullRequests } = require('./src/acessApi/getPullRequests');
+const { promptUserInfo } = require('./src/userInteraction/userInfo');
+const { fetchProjects } = require('./src/business-rules');
+const { promptProjectsToUpload } = require('./src/userInteraction/getProjectsToUpload');
+const { asyncSpawn } = require('./src/acessLocal/utils/asyncSpawn');
 
 async function getProjectName(declareNameForProject, userName, repository) {
   // If user decided to declare new project right now
@@ -165,14 +163,13 @@ async function main() {
 
   // Run the script for each project
   for (const project of projectsToUpload) {
-    await cloneRepository(project);
+    await controller.cloneRepository(project);
     await run(project, useDefaultNameForProjects, username);
-    await uploadNewReadme(project);
-    await deleteRepository(project);
+    await controller.uploadNewReadme(project);
+    await controller.deleteRepository(project);
   }
 
   logGreenBigBold('Finalizado! Até a próxima');
 }
 
 (async function () { await main(); }());
-inquirer;

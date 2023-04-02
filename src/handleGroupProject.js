@@ -1,8 +1,7 @@
 /* eslint-disable no-await-in-loop */
-/* eslint-disable react-func/max-lines-per-function */
-const getBranchNames = require('./data-acess/getBranchName.mjs');
+const { getBranchNames } = require('./acessApi/getBranchName');
 
-export function decideIfIsGroupProject(arrayOfObjectPR) {
+function decideIfIsGroupProject(arrayOfObjectPR) {
   // This function is for soft checking if repository is for
   // a group project.
   // To-do: find a more foolproof way.
@@ -21,7 +20,7 @@ export function decideIfIsGroupProject(arrayOfObjectPR) {
   return isGroupProject;
 }
 
-export function findAllUserPrsInGroupProject(arrayOfObjectPR, user) {
+function findAllUserPrsInGroupProject(arrayOfObjectPR, user) {
   // Filter the PullRequest where the user is a participant
   const pullRequestFromUser = arrayOfObjectPR.filter((pullRequestObj) => {
     const prParticipants = pullRequestObj.node.participants.nodes;
@@ -31,3 +30,8 @@ export function findAllUserPrsInGroupProject(arrayOfObjectPR, user) {
 
   return pullRequestFromUser;
 }
+
+module.exports = {
+  decideIfIsGroupProject,
+  findAllUserPrsInGroupProject,
+};

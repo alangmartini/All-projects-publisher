@@ -13,9 +13,11 @@
     "child-process": "^1.0.2",
     "cli-progress": "^3.12.0",
     "eslint-config-trybe-backend": "^2.1.0",
+    "fs-extra": "^11.1.0",
+    "glob": "^9.3.0",
     "graphql": "^16.6.0",
     "graphql-tag": "^2.12.6",
-    "inquirer": "^9.1.4",
+    "inquirer": "^8.2.5",
     "sinon-chai": "^3.7.0"
   },
   "devDependencies": {
