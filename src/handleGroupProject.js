@@ -1,5 +1,8 @@
 /* eslint-disable no-await-in-loop */
-const { getBranchNames } = require('./acessApi/getBranchName');
+function getBranchNames(arrayOfObjectPR) {
+  const allBranchesNames = arrayOfObjectPR.map(({ node }) => node.headRefName);
+  return allBranchesNames;
+}
 
 function decideIfIsGroupProject(arrayOfObjectPR) {
   // This function is for soft checking if repository is for

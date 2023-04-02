@@ -1,6 +1,6 @@
-const dataAcess = require('../../acessApi/index');
+const dataAcess = require('../../acess');
 const { ERRORS_OBJECT, ERRORS_TYPE } = require('../../errors/object.errors');
-const utils = require('../utils.fetchProjects');
+const utils = require('./utils.fetchProjects');
 
 async function fetchProjects(triboAtual) {
   const possibleGraphQLStringWithProjects = await dataAcess.fetchProjects();

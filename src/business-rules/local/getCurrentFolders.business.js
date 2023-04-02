@@ -1,8 +1,8 @@
-const localHandling = require('../../acessLocal');
+const acess = require('../../acess');
 const { ERRORS_OBJECT, ERRORS_TYPE } = require('../../errors/object.errors');
 
 const getCurrentFolders = async () => {
-  const folders = await localHandling.getCurrentFolders();
+  const folders = await acess.getCurrentFolders();
 
   if (folders instanceof Error) {
     return {

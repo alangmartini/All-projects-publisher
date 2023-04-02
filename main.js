@@ -1,4 +1,6 @@
+/* eslint-disable max-lines-per-function */
 const inquirer = require('inquirer');
+const cliProgress = require('cli-progress');
 const controller = require('./src/controller');
 
 const {
@@ -8,22 +10,22 @@ const {
 } = require('./src/userInteraction/colorfulLogs/logs');
 
 const { questionRepositoryNameFromInput } = require(
-  './src/userInteraction/inquirerQuestions/projectNameHandling/projectNameForRepo'
+  './src/userInteraction/inquirerQuestions/projectNameHandling/projectNameForRepo',
   );
 const { handleMultiplePrsQuestion } = require(
-  './src/userInteraction/inquirerQuestions/branchHandling/handleMultiplePrsQuestion'
+  './src/userInteraction/inquirerQuestions/branchHandling/handleMultiplePrsQuestion',
 );
 
 const {
   decideIfIsGroupProject,
   findAllUserPrsInGroupProject,
 } = require('./src/handleGroupProject');
-const { getBranchNames } = require('./src/acessApi/getBranchName');
-const { getPullRequests } = require('./src/acessApi/getPullRequests');
+const { getBranchNames } = require('./src/acess');
+const { getPullRequests } = require('./src/acess');
 const { promptUserInfo } = require('./src/userInteraction/userInfo');
 const { fetchProjects } = require('./src/business-rules');
 const { promptProjectsToUpload } = require('./src/userInteraction/getProjectsToUpload');
-const { asyncSpawn } = require('./src/acessLocal/utils/asyncSpawn');
+const { executeCommandIteractive } = require('./src/acess/acessLocal/execs/executeCommand.local');
 
 async function getProjectName(declareNameForProject, userName, repository) {
   // If user decided to declare new project right now
@@ -107,20 +109,14 @@ async function getBranchFromPR(repository, username) {
   return branchName;
 }
 
-async function runTrybePublisher(
+async function executeTrybePublisher(
   branchForCurrentRepository,
   projectName,
   repository,
 ) {
   try {
-    await asyncSpawn(
-      'trybe-publisher',
-      ['-b', `${branchForCurrentRepository}`, '-p', `${projectName}`],
-      repository,
-    );
-    logGreenBigBold(
-      `Finalizado a publicação de ${repository} como ${projectName}`,
-    );
+    const command = `trybe-publisher -b ${branchForCurrentRepository} -p ${projectName}`;
+    await executeCommandIteractive(command, repository);
   } catch (error) {
     logRedBigBold('Aconteceu algum erro! ');
     console.log(error.stdout);
@@ -128,48 +124,92 @@ async function runTrybePublisher(
   }
 }
 
-async function run(repository, declareNameForProject, username) {
+async function handleProjects(project, declareNameForProject, username) {
   const projectName = await getProjectName(
     declareNameForProject,
     username,
-    repository,
+    project,
   );
 
-  logGreenBigBold(`Começando a publicação do projeto: ${repository}`);
+  const branchName = await getBranchFromPR(project, username);
 
+  return { branchName, projectName, project };
+}
+
+async function publishProject(project, declareNameForProject, username) {
   logGreenBigBold(
-    'Beleza! Agora começara o processo de clonar o projeto,'
+    `Beleza! Agora começara o processo de clonar o projeto ${project},`
       + ' achar sua branch e renomear o projeto (caso tenha decidido)'
       + ' para subi-lo em seu Github',
   );
+  
+  const { branchName, projectName } = await handleProjects(
+    project,
+    declareNameForProject,
+    username,
+  );
 
-  const branchName = await getBranchFromPR(repository, username);
+  await executeTrybePublisher(branchName, projectName, project);
 
-  await runTrybePublisher(branchName, projectName, repository);
+  logGreenBigBold(
+    `Finalizado a publicação de ${project} como ${projectName}`,
+  );
+}
+
+async function run(project, useDefaultNameForProjects, username, multiBar) {
+  const progressBar = multiBar.create(100, 0, {
+    task: `${project.split(/[ab]/)[1]}`,
+  });
+
+  progressBar.update(25);
+  await controller.cloneRepository(project);
+  progressBar.update(50);
+  await publishProject(project, useDefaultNameForProjects, username);
+  progressBar.update(75);
+  await controller.uploadNewReadme(project);
+  progressBar.update(90);
+  await controller.deleteRepository(project);
+
+  progressBar.update(100);
+  progressBar.stop();
 }
 
 async function main() {
   // Get necessary info for running the script
   const userInfo = await promptUserInfo();
 
+  console.log('im here');
   logYellowBigBold(
     'Pegando todos os projetos da sua turma atualmente disponíveis no GitHub',
   );
+  
   const projectsFromCurrentTrybe = await fetchProjects(userInfo.currentTrybe); // tested
 
   const projectsToUpload = await promptProjectsToUpload(projectsFromCurrentTrybe);
 
   const { username, useDefaultNameForProjects } = userInfo;
 
+  const multiBar = new cliProgress.MultiBar({
+    format: '{task} | {bar} {percentage}% | {projectName} | {value}/{total}',
+    clearOnComplete: false,
+    hideCursor: true,
+  });
+
+  const tasks = projectsToUpload
+    .map((project) => run(project, useDefaultNameForProjects, username));
+
   // Run the script for each project
-  for (const project of projectsToUpload) {
-    await controller.cloneRepository(project);
-    await run(project, useDefaultNameForProjects, username);
-    await controller.uploadNewReadme(project);
-    await controller.deleteRepository(project);
+  try {
+    await Promise.all(tasks);
+
+    multiBar.stop();
+  } catch (e) {
+    console.error(e);
+
+    multiBar.stop();
   }
 
   logGreenBigBold('Finalizado! Até a próxima');
 }
 
-(async function () { await main(); }());
+(async function teste() { await main(); }());

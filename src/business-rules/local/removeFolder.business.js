@@ -1,4 +1,4 @@
-const acessLocal = require('../../acessLocal');
+const acessLocal = require('../../acess');
 const { ERRORS_TYPE, ERRORS_OBJECT } = require('../../errors/object.errors');
 
 const removeFolder = async (folder) => {
